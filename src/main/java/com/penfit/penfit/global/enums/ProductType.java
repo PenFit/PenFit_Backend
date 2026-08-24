@@ -3,9 +3,6 @@ package com.penfit.penfit.global.enums;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-/**
- * 연금 상품 종류 3개. accountType과의 매핑은 아래 조합만 허용한다.
- */
 @Getter
 @RequiredArgsConstructor
 public enum ProductType {

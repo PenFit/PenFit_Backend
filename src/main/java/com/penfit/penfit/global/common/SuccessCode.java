@@ -4,9 +4,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 
-/**
- * 성공 응답 코드. 에러 코드와 같은 {도메인2}{HTTP상태3}{일련1} 규칙을 따른다.
- */
 @Getter
 @RequiredArgsConstructor
 public enum SuccessCode {

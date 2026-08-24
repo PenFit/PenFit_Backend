@@ -3,11 +3,6 @@ package com.penfit.penfit.global.enums;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-/**
- * 리허설 선택지 고유 코드 19개. 시나리오 공통 행동이면 같은 코드를 재사용하므로
- * 코드 하나만으로는 의미가 확정되지 않는다. 허용 조합과 상황별 의미는
- * {@link com.penfit.penfit.global.enums.RehearsalOptionCatalog} 에서 관리한다.
- */
 public enum OptionCode {
 
     KEEP,

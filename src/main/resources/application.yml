@@ -1,5 +1,3 @@
-# 뼈대만 잡는 파일. 실제 값은 environment variable 또는 프로필 파일에서 채운다.
-# 이 파일만 GitHub에 올린다. application-dev.yml / application-prod.yml 은 커밋하지 않는다.
 spring:
   application:
     name: penfit
@@ -34,8 +32,6 @@ server:
   port: 8080
   shutdown: graceful
 
-# actuator 는 컨테이너 내부 헬스체크 용도로만 쓴다.
-# 운영에서는 Caddy 가 /actuator 경로를 외부에 노출하지 않는다.
 management:
   endpoints:
     web:
@@ -54,8 +50,6 @@ springdoc:
     tags-sorter: alpha
     operations-sorter: alpha
 
-# 백엔드-AI 서버 연동.
-# 타임아웃은 AI 파트가 ARM64 운영 환경에서 P95를 실측한 뒤 이 값만 조정한다. 코드는 건드리지 않는다.
 penfit:
   ai:
     base-url: ${AI_BASE_URL}
@@ -68,7 +62,6 @@ penfit:
       spending-mission: 18s
 
 ---
-# 민감정보가 아닌 dev 전용 동작. 실제 접속 값은 application-dev.yml 에서 채운다.
 spring:
   config:
     activate:
@@ -82,7 +75,6 @@ logging:
     org.hibernate.orm.jdbc.bind: TRACE
 
 ---
-# 민감정보가 아닌 prod 전용 동작. 실제 접속 값은 배포 서버의 환경변수에서 채운다.
 spring:
   config:
     activate:

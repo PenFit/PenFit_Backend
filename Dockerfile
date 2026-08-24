@@ -1,10 +1,6 @@
-# syntax=docker/dockerfile:1
-
-# ---------- build ----------
 FROM eclipse-temurin:17-jdk-jammy AS builder
 WORKDIR /workspace
 
-# 의존성 레이어를 먼저 캐싱해 소스만 바뀐 배포를 빠르게 한다.
 COPY gradlew settings.gradle build.gradle ./
 COPY gradle gradle
 RUN chmod +x gradlew && ./gradlew --no-daemon dependencies > /dev/null 2>&1 || true
@@ -12,7 +8,6 @@ RUN chmod +x gradlew && ./gradlew --no-daemon dependencies > /dev/null 2>&1 || t
 COPY src src
 RUN ./gradlew --no-daemon clean bootJar -x test
 
-# ---------- runtime ----------
 FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
 

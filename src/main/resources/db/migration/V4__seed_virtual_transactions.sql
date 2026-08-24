@@ -1,7 +1,3 @@
--- 가상 소비내역 시드 (2026-07-01 ~ 2026-07-31, 전체 사용자 공용 1세트)
--- 실제 금융계좌·결제내역을 연동하지 않는다. 화면에 가상 데이터임을 반드시 표시할 것.
--- 카테고리 합계: 외식·배달 180,000 / 쇼핑 100,000 / 교통 40,000 / 구독 10,000 = 330,000원
-
 INSERT INTO virtual_transactions (category_code, merchant_name, amount, transacted_at) VALUES
     ('FOOD_DELIVERY', '샘플 카페', 4500, TIMESTAMPTZ '2026-07-01 08:40:00+09'),
     ('FOOD_DELIVERY', '샘플 카페', 4500, TIMESTAMPTZ '2026-07-02 08:45:00+09'),

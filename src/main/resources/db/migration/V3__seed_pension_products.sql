@@ -1,7 +1,3 @@
--- 연금 상품 시드 12개 (연금저축펀드 5 / 개인형 IRP 4 / 연금저축보험 3)
--- 주의: 수수료율과 상품 특징은 개발용 임시값이다. 제출 전 각 금융회사 공식 채널 값으로 교체해야 한다.
--- 참고 노트 점검표: 추천 상품의 데이터 출처 또는 기준일을 화면에 표시할 것.
-
 INSERT INTO pension_products (provider_type, provider_name, product_name, account_type, product_type, summary, fee_min_rate, fee_max_rate, investment_scope, official_url, data_source, reference_date) VALUES
     ('SECURITIES', '미래에셋증권', '미래에셋 연금저축펀드', 'PENSION_SAVINGS_FUND', 'FUND_ACCOUNT', '국내 최대 규모의 연금전용 펀드 라인업. ETF·펀드 선택 폭 넓음', 0.0015, 0.0045, 'ETF 300종 + 펀드 2,000종', 'https://securities.miraeasset.com', '임시 데이터 · 금융회사 공식 채널 확인 전', DATE '2026-08-01'),
     ('SECURITIES', '삼성증권', '삼성증권 연금저축계좌', 'PENSION_SAVINGS_FUND', 'FUND_ACCOUNT', '삼성자산운용 ETF 라인업 + 투자 가이드 제공', 0.0012, 0.0040, 'ETF 200종 + 펀드 1,800종', 'https://www.samsungpop.com', '임시 데이터 · 금융회사 공식 채널 확인 전', DATE '2026-08-01'),
@@ -16,7 +12,6 @@ INSERT INTO pension_products (provider_type, provider_name, product_name, accoun
     ('INSURANCE', '한화생명', '한화생명 연금저축보험', 'PENSION_SAVINGS_INSURANCE', 'INSURANCE_PRODUCT', '납입 유예 옵션이 있어 소득 변동에 대응하기 쉬움', 0.0400, 0.0680, '공시이율 연동 (투자상품 선택 없음)', 'https://www.hanwhalife.com', '임시 데이터 · 금융회사 공식 채널 확인 전', DATE '2026-08-01'),
     ('INSURANCE', '교보생명', '교보생명 연금저축보험', 'PENSION_SAVINGS_INSURANCE', 'INSURANCE_PRODUCT', '최저보증이율이 있어 하락장에서도 적립금이 유지됨', 0.0400, 0.0650, '공시이율 연동 (투자상품 선택 없음)', 'https://www.kyobo.com', '임시 데이터 · 금융회사 공식 채널 확인 전', DATE '2026-08-01');
 
--- 상품 상세 화면의 '수수료 특징'
 INSERT INTO product_features (product_id, display_order, content)
 SELECT id, 1, 'ETF·펀드 2,300종 이상 선택 가능' FROM pension_products WHERE provider_name = '미래에셋증권' AND product_name = '미래에셋 연금저축펀드'
  UNION ALL SELECT id, 2, '모바일 앱에서 실시간 포트폴리오 확인' FROM pension_products WHERE provider_name = '미래에셋증권' AND product_name = '미래에셋 연금저축펀드'
@@ -55,7 +50,6 @@ SELECT id, 1, 'ETF·펀드 2,300종 이상 선택 가능' FROM pension_products 
  UNION ALL SELECT id, 2, '시장 하락과 무관하게 적립금 유지' FROM pension_products WHERE provider_name = '교보생명' AND product_name = '교보생명 연금저축보험'
  UNION ALL SELECT id, 3, '연금 수령 방식 선택 가능' FROM pension_products WHERE provider_name = '교보생명' AND product_name = '교보생명 연금저축보험';
 
--- 상품 상세 화면의 '주의사항'
 INSERT INTO product_cautions (product_id, display_order, content)
 SELECT id, 1, '일부 펀드는 판매수수료 별도' FROM pension_products WHERE provider_name = '미래에셋증권' AND product_name = '미래에셋 연금저축펀드'
  UNION ALL SELECT id, 2, 'ETF 거래 시 매매 수수료 발생' FROM pension_products WHERE provider_name = '미래에셋증권' AND product_name = '미래에셋 연금저축펀드'

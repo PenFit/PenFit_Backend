@@ -1,8 +1,3 @@
-# OCI 서버에서 사용하는 운영용 구성.
-# 서버에는 이 파일과 Caddyfile, .env 세 개만 두면 된다. 소스코드와 JDK는 필요 없다.
-#   docker compose -f docker-compose.prod.yml pull
-#   docker compose -f docker-compose.prod.yml up -d
-
 services:
   postgres:
     image: postgres:16-alpine
@@ -21,7 +16,6 @@ services:
       timeout: 5s
       retries: 10
     networks: [penfit]
-    # DB 포트는 외부에 열지 않는다. 컨테이너 네트워크 안에서만 접근한다.
 
   app:
     image: ${PENFIT_IMAGE:-ghcr.io/penfit/penfit_backend:latest}
@@ -39,7 +33,6 @@ services:
       AI_INTERNAL_API_KEY: ${AI_INTERNAL_API_KEY}
       TZ: Asia/Seoul
     networks: [penfit]
-    # 앱 포트도 직접 열지 않는다. 외부 트래픽은 전부 Caddy를 거친다.
 
   caddy:
     image: caddy:2-alpine
