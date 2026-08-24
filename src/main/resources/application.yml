@@ -1,0 +1,58 @@
+spring:
+  application:
+    name: penfit
+  profiles:
+    default: local
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          time_zone: Asia/Seoul
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  jackson:
+    default-property-inclusion: non_null
+    time-zone: Asia/Seoul
+
+server:
+  port: 8080
+  shutdown: graceful
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+
+# 백엔드-AI 서버 연동. 타임아웃은 AI 파트가 ARM64 운영 환경에서 P95를 실측한 뒤
+# 이 값만 조정한다. 코드는 수정하지 않는다.
+penfit:
+  ai:
+    base-url: ${AI_BASE_URL:http://localhost:8000}
+    api-key: ${AI_INTERNAL_API_KEY}
+    connect-timeout: 3s
+    timeout:
+      passport: 18s
+      pension-plan: 18s
+      product-recommendation: 13s
+      spending-mission: 18s

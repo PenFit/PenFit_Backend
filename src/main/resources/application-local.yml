@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/penfit}
+    username: ${DB_USERNAME:penfit}
+    password: ${DB_PASSWORD:penfit}
+  jpa:
+    show-sql: true
+
+penfit:
+  ai:
+    api-key: ${AI_INTERNAL_API_KEY:local-dev-key}
+
+logging:
+  level:
+    com.penfit.penfit: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
