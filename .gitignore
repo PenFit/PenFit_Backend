@@ -38,3 +38,7 @@ out/
 
 ### PenFit ###
 .env
+
+# 실제 값이 들어가는 프로필 파일은 절대 커밋하지 않는다.
+src/main/resources/application-dev.yml
+src/main/resources/application-prod.yml

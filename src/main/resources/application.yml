@@ -1,25 +1,31 @@
+# 뼈대만 잡는 파일. 실제 값은 environment variable 또는 프로필 파일에서 채운다.
+# 이 파일만 GitHub에 올린다. application-dev.yml / application-prod.yml 은 커밋하지 않는다.
 spring:
   application:
     name: penfit
   profiles:
-    default: local
+    active: dev   # 개발할 땐 dev, 배포할 땐 prod (배포 시 SPRING_PROFILES_ACTIVE 로 덮어씀)
+
   datasource:
     driver-class-name: org.postgresql.Driver
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
+
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: validate      # 스키마 변경은 Flyway 마이그레이션으로만 한다
     open-in-view: false
     properties:
       hibernate:
         format_sql: true
         jdbc:
           time_zone: Asia/Seoul
+
   flyway:
     enabled: true
     locations: classpath:db/migration
+
   jackson:
     default-property-inclusion: non_null
     time-zone: Asia/Seoul
@@ -44,11 +50,11 @@ springdoc:
     tags-sorter: alpha
     operations-sorter: alpha
 
-# 백엔드-AI 서버 연동. 타임아웃은 AI 파트가 ARM64 운영 환경에서 P95를 실측한 뒤
-# 이 값만 조정한다. 코드는 수정하지 않는다.
+# 백엔드-AI 서버 연동.
+# 타임아웃은 AI 파트가 ARM64 운영 환경에서 P95를 실측한 뒤 이 값만 조정한다. 코드는 건드리지 않는다.
 penfit:
   ai:
-    base-url: ${AI_BASE_URL:http://localhost:8000}
+    base-url: ${AI_BASE_URL}
     api-key: ${AI_INTERNAL_API_KEY}
     connect-timeout: 3s
     timeout:
@@ -56,3 +62,31 @@ penfit:
       pension-plan: 18s
       product-recommendation: 13s
       spending-mission: 18s
+
+---
+# 민감정보가 아닌 dev 전용 동작. 실제 접속 값은 application-dev.yml 에서 채운다.
+spring:
+  config:
+    activate:
+      on-profile: dev
+  jpa:
+    show-sql: true
+
+logging:
+  level:
+    com.penfit.penfit: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
+
+---
+# 민감정보가 아닌 prod 전용 동작. 실제 접속 값은 배포 서버의 환경변수에서 채운다.
+spring:
+  config:
+    activate:
+      on-profile: prod
+  jpa:
+    show-sql: false
+
+logging:
+  level:
+    root: INFO
+    com.penfit.penfit: INFO
