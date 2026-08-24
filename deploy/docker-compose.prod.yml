@@ -1,0 +1,67 @@
+# OCI 서버에서 사용하는 운영용 구성.
+# 서버에는 이 파일과 Caddyfile, .env 세 개만 두면 된다. 소스코드와 JDK는 필요 없다.
+#   docker compose -f docker-compose.prod.yml pull
+#   docker compose -f docker-compose.prod.yml up -d
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: penfit-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      TZ: Asia/Seoul
+    volumes:
+      - penfit-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [penfit]
+    # DB 포트는 외부에 열지 않는다. 컨테이너 네트워크 안에서만 접근한다.
+
+  app:
+    image: ${PENFIT_IMAGE:-ghcr.io/penfit/penfit_backend:latest}
+    container_name: penfit-app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      DB_USERNAME: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      AI_BASE_URL: ${AI_BASE_URL:-http://ai-server:8000}
+      AI_INTERNAL_API_KEY: ${AI_INTERNAL_API_KEY}
+      TZ: Asia/Seoul
+    networks: [penfit]
+    # 앱 포트도 직접 열지 않는다. 외부 트래픽은 전부 Caddy를 거친다.
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: penfit-caddy
+    restart: unless-stopped
+    depends_on: [app]
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      PENFIT_DOMAIN: ${PENFIT_DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - penfit-caddy-data:/data
+      - penfit-caddy-config:/config
+    networks: [penfit]
+
+volumes:
+  penfit-postgres-data:
+  penfit-caddy-data:
+  penfit-caddy-config:
+
+networks:
+  penfit:
+    driver: bridge
