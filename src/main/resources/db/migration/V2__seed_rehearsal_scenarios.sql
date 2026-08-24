@@ -1,6 +1,3 @@
--- 리허설 시나리오 6개와 허용 선택지 31개 (Enum 단일 기준 명세서와 1:1 대응)
--- 시나리오 지문의 금액은 사용자 설정액으로 치환하지 않고 원문 그대로 고정한다.
-
 INSERT INTO rehearsal_scenarios (scenario_code, display_order, title, badge, situation, question, baseline_contribution, context_cards, irp_notice) VALUES
     ('JOB_CHANGE', 1, '이직', '현재 29세 · 퇴사 후 1개월차',
      '새로운 직장을 찾기 위해 퇴사했습니다. 앞으로 4개월 동안 소득이 없고, 현재 비상금으로 약 6개월의 생활비를 감당할 수 있습니다. 현재 연금에는 매월 10만 원을 납입하고 있습니다.',

@@ -10,19 +10,8 @@ import java.util.Map;
 import static com.penfit.penfit.global.enums.OptionCode.*;
 import static com.penfit.penfit.global.enums.ScenarioCode.*;
 
-/**
- * 리허설 상황과 선택지의 허용 조합 31개.
- * <p>
- * optionCode는 상황 접두어 없이 공통 코드를 재사용하므로 코드 하나만 검증해서는 안 되고
- * 반드시 (scenarioCode, optionCode) 조합이 이 목록에 있는지 확인해야 한다.
- * 선택지 지문은 DB 시드에 두고, 이 클래스는 조합 검증과 노출 순서만 책임진다.
- */
 public final class RehearsalOptionCatalog {
 
-    /**
-     * @param displayOrder 화면에 노출하는 순서 (1부터)
-     * @param meaning      해당 상황에서 이 선택지가 갖는 의미
-     */
     public record Entry(ScenarioCode scenarioCode, OptionCode optionCode, int displayOrder, String meaning) {
     }
 
@@ -76,7 +65,6 @@ public final class RehearsalOptionCatalog {
     private RehearsalOptionCatalog() {
     }
 
-    /** 해당 상황의 선택지를 노출 순서대로 반환한다. */
     public static List<Entry> optionsOf(ScenarioCode scenarioCode) {
         return BY_SCENARIO.get(scenarioCode);
     }
@@ -89,7 +77,6 @@ public final class RehearsalOptionCatalog {
         return entries.stream().anyMatch(entry -> entry.optionCode() == optionCode);
     }
 
-    /** 허용되지 않은 조합이면 RH4001로 막는다. */
     public static Entry require(ScenarioCode scenarioCode, OptionCode optionCode) {
         List<Entry> entries = BY_SCENARIO.get(scenarioCode);
         if (entries != null) {

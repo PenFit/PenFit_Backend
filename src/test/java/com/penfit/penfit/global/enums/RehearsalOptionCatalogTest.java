@@ -71,7 +71,7 @@ class RehearsalOptionCatalogTest {
     @Test
     @DisplayName("허용되지 않은 조합은 RH4001로 막는다")
     void rejectsCombinationOutsideCatalog() {
-        // REBALANCE 는 시장 하락에만 있는 선택지다
+
         assertThat(RehearsalOptionCatalog.isAllowed(ScenarioCode.JOB_CHANGE, OptionCode.REBALANCE)).isFalse();
 
         assertThatThrownBy(() -> RehearsalOptionCatalog.require(ScenarioCode.JOB_CHANGE, OptionCode.REBALANCE))

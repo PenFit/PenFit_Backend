@@ -3,10 +3,6 @@ package com.penfit.penfit.global.enums;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-/**
- * 연금 패스포트 성향 4개. AI 서버는 이 4개 외의 코드를 만들 수 없고,
- * 백엔드는 응답을 받은 뒤 이 Enum으로 다시 검증한다.
- */
 @Getter
 @RequiredArgsConstructor
 public enum PassportTypeCode {

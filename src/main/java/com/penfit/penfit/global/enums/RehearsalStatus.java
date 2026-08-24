@@ -3,10 +3,6 @@ package com.penfit.penfit.global.enums;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-/**
- * 리허설 진행 상태. ANALYZING 동안 프론트가 2초 간격으로 폴링하고,
- * COMPLETED 또는 FAILED가 되면 폴링을 멈춘다.
- */
 @Getter
 @RequiredArgsConstructor
 public enum RehearsalStatus {

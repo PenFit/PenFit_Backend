@@ -3,9 +3,6 @@ package com.penfit.penfit.global.enums;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-/**
- * 리허설 상황 6개. displayOrder는 화면에 노출하는 순서다.
- */
 @Getter
 @RequiredArgsConstructor
 public enum ScenarioCode {

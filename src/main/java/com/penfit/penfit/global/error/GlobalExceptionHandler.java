@@ -28,7 +28,6 @@ public class GlobalExceptionHandler {
                 .body(ApiResTemplate.error(errorCode, e.getMessage()));
     }
 
-    /** @Valid 로 검증한 Request Body 오류 */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResTemplate<Void>> handleValidation(MethodArgumentNotValidException e) {
         String message = e.getBindingResult().getFieldErrors().stream()
@@ -37,7 +36,6 @@ public class GlobalExceptionHandler {
         return respond(ErrorCode.INVALID_INPUT, message);
     }
 
-    /** JSON 파싱 실패, Enum 코드 오타 등 */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiResTemplate<Void>> handleUnreadable(HttpMessageNotReadableException e) {
         log.warn("요청 본문을 읽을 수 없음: {}", e.getMessage());
