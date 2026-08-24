@@ -34,15 +34,19 @@ server:
   port: 8080
   shutdown: graceful
 
+# actuator 는 컨테이너 내부 헬스체크 용도로만 쓴다.
+# 운영에서는 Caddy 가 /actuator 경로를 외부에 노출하지 않는다.
 management:
   endpoints:
     web:
       exposure:
-        include: health, info
+        include: health
   endpoint:
     health:
       probes:
         enabled: true
+      show-details: never
+      show-components: never
 
 springdoc:
   swagger-ui:

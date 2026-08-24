@@ -1,8 +1,0 @@
-# 이 파일을 application-dev.yml 로 복사한 뒤 각자 로컬 값으로 채운다.
-# application-dev.yml 은 .gitignore 에 등록되어 있어 커밋되지 않는다.
-DB_URL: jdbc:postgresql://localhost:5432/penfit
-DB_USERNAME: penfit
-DB_PASSWORD: penfit
-
-AI_BASE_URL: http://localhost:8000
-AI_INTERNAL_API_KEY: local-dev-key

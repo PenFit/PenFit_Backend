@@ -4,9 +4,24 @@
 {$PENFIT_DOMAIN} {
 	encode gzip
 
-	# 프론트엔드 배포 도메인을 여기에 추가한다.
-	@cors_preflight method OPTIONS
-	respond @cors_preflight 204
+	# 운영 지표 엔드포인트는 인터넷에 노출하지 않는다.
+	# 컨테이너 내부 헬스체크(localhost:8080)와 배포 파이프라인의 docker exec 검사는 영향받지 않는다.
+	@actuator path /actuator /actuator/*
+	respond @actuator 404
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "no-referrer"
+		Permissions-Policy "geolocation=(), microphone=(), camera=()"
+		-Server
+	}
+
+	# 이 서비스는 파일 업로드가 없다. 과도한 본문을 미리 차단한다.
+	request_body {
+		max_size 2MB
+	}
 
 	reverse_proxy app:8080 {
 		header_up X-Real-IP {remote_host}

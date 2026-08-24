@@ -3,14 +3,25 @@
 OCI Ampere A1 (ARM64) + Docker + GitHub Actions 구성이다.
 
 ```
-main 푸시
-  ↓
-① 테스트        ubuntu-latest + postgres:16
-② 이미지 빌드    ubuntu-24.04-arm 에서 네이티브 ARM64 빌드 → GHCR 푸시
-③ 배포          compose·Caddyfile 전송 → 시크릿으로 .env 생성 → pull & up -d → 헬스체크
+develop 푸시 / PR   → ① 테스트까지만
+main 푸시           → ① 테스트 → ② 이미지 빌드 → ③ 배포
 ```
 
-`.env` 는 **배포할 때마다 GitHub Secrets 값으로 새로 생성**된다. 서버에서 직접 만들거나 수정하지 않는다.
+| 단계 | 실행 위치 | 내용 |
+|---|---|---|
+| ① 테스트 | ubuntu-latest | postgres:16 서비스 컨테이너와 함께 `./gradlew test` |
+| ② 이미지 빌드 | ubuntu-24.04-arm | 네이티브 ARM64 빌드 후 GHCR 에 커밋 SHA 태그로 푸시 |
+| ③ 배포 | SSH | compose·Caddyfile 전송 → 시크릿 주입 → pull & up -d → 헬스체크 |
+
+## 값 주입 방식
+
+**서버 디스크에 비밀값을 파일로 남기지 않는다.** `.env` 파일을 만들지 않고,
+배포 SSH 세션의 환경변수로만 값을 전달한다. `docker compose` 가 `${VAR}` 를 셸 환경에서
+치환하므로 이것만으로 충분하다. 세션이 끝나면 서버에는 아무 값도 남지 않는다.
+
+배포 스크립트는 시작 시 필수 값이 모두 채워졌는지 먼저 검사하고, 하나라도 비면
+컨테이너를 올리지 않고 중단한다. 값이 빈 채로 조용히 잘못 뜨는 상황을 막기 위해서다.
+과거 배포가 남긴 `.env` 가 있으면 함께 삭제한다.
 
 ## 서버 사전 준비
 
@@ -59,18 +70,29 @@ main 푸시
 
 ## 수동 배포와 롤백
 
-```bash
-# 특정 커밋 버전으로 되돌리기
-cd ~/penfit
-sed -i "s|^PENFIT_IMAGE=.*|PENFIT_IMAGE=ghcr.io/penfit/penfit_backend:<커밋SHA>|" .env
-docker compose -f docker-compose.prod.yml up -d
+롤백은 **Actions 에서 이전 커밋의 워크플로를 다시 실행**하는 방식을 쓴다.
+서버에 값이 남아 있지 않으므로 서버에서 직접 `docker compose up` 을 실행하면 환경변수가 없어 실패한다.
 
-# 로그 확인
-docker logs -f penfit-app
+```bash
+# 서버에서는 상태 확인과 로그 조회만 한다
 docker compose -f docker-compose.prod.yml ps
+docker logs -f penfit-app
 ```
+
+## 보안 구성
+
+| 항목 | 조치 |
+|---|---|
+| 포트 | 80·443 만 개방. DB(5432)와 앱(8080)은 컨테이너 네트워크 안에만 존재 |
+| 비밀값 | 서버 디스크에 저장하지 않음. 배포 SSH 세션 환경변수로만 전달 |
+| 레지스트리 자격증명 | pull 직후 `docker logout` 으로 제거 |
+| 컨테이너 실행 계정 | 루트가 아닌 `penfit` 사용자 |
+| `/actuator` | Caddy 가 외부 요청을 404 로 차단. 노출 엔드포인트도 `health` 하나로 제한하고 상세 정보는 숨김 |
+| 응답 헤더 | HSTS, `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy` 적용. `Server` 헤더 제거 |
+| 요청 본문 | 2MB 상한 (파일 업로드 기능이 없음) |
+| Swagger UI | 심사 편의를 위해 공개 유지 |
 
 ## 참고
 
-- DB와 애플리케이션 포트는 외부에 열지 않는다. 외부 트래픽은 전부 Caddy(80/443)를 거친다.
 - AI 서버 컨테이너는 준비되면 `docker-compose.prod.yml` 에 `ai-server` 서비스로 추가한다.
+  이때도 포트를 외부에 열지 않고 컨테이너 네트워크 안에서만 접근한다.
