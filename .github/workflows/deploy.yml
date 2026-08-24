@@ -47,6 +47,7 @@ jobs:
           DB_URL: jdbc:postgresql://localhost:5432/penfit
           DB_USERNAME: penfit
           DB_PASSWORD: penfit
+          AI_BASE_URL: http://localhost:8000
           AI_INTERNAL_API_KEY: ci-test-key
 
       - name: 테스트 리포트 업로드
@@ -106,6 +107,9 @@ jobs:
     # OCI 인스턴스와 시크릿 등록을 마친 뒤 저장소 변수 DEPLOY_ENABLED 를 true 로 설정하면 동작한다.
     if: vars.DEPLOY_ENABLED == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
     steps:
       - uses: actions/checkout@v4
 
@@ -120,31 +124,50 @@ jobs:
           strip_components: 1
           overwrite: true
 
-      - name: 새 이미지로 교체
+      - name: 환경변수 주입과 컨테이너 교체
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.OCI_HOST }}
           username: ${{ secrets.OCI_USER }}
           key: ${{ secrets.OCI_SSH_KEY }}
           script_stop: true
+          # 서버에 값을 미리 만들어두지 않는다. 실제 값은 전부 GitHub Secrets 에서 내려온다.
+          envs: PENFIT_IMAGE,PENFIT_DOMAIN,POSTGRES_DB,POSTGRES_USER,POSTGRES_PASSWORD,AI_BASE_URL,AI_INTERNAL_API_KEY,GHCR_USER,GHCR_TOKEN
           script: |
             set -e
-            cd ~/penfit
+            mkdir -p ~/penfit && cd ~/penfit
 
-            # .env 의 PENFIT_IMAGE 를 이번 커밋 태그로 교체한다.
-            IMAGE="${{ needs.build.outputs.image }}"
-            if grep -q '^PENFIT_IMAGE=' .env; then
-              sed -i "s|^PENFIT_IMAGE=.*|PENFIT_IMAGE=${IMAGE}|" .env
-            else
-              echo "PENFIT_IMAGE=${IMAGE}" >> .env
-            fi
+            # .env 는 매 배포마다 새로 쓴다. 소유자만 읽을 수 있게 권한을 제한한다.
+            umask 077
+            cat > .env <<ENVFILE
+            PENFIT_IMAGE=${PENFIT_IMAGE}
+            PENFIT_DOMAIN=${PENFIT_DOMAIN}
+            POSTGRES_DB=${POSTGRES_DB}
+            POSTGRES_USER=${POSTGRES_USER}
+            POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+            AI_BASE_URL=${AI_BASE_URL}
+            AI_INTERNAL_API_KEY=${AI_INTERNAL_API_KEY}
+            ENVFILE
+
+            echo "${GHCR_TOKEN}" | docker login ghcr.io -u "${GHCR_USER}" --password-stdin
 
             docker compose -f docker-compose.prod.yml pull
             docker compose -f docker-compose.prod.yml up -d --remove-orphans
             docker image prune -f
+            docker logout ghcr.io
 
             echo "--- 컨테이너 상태 ---"
             docker compose -f docker-compose.prod.yml ps
+        env:
+          PENFIT_IMAGE: ${{ needs.build.outputs.image }}
+          PENFIT_DOMAIN: ${{ vars.PENFIT_DOMAIN }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          AI_BASE_URL: ${{ vars.AI_BASE_URL }}
+          AI_INTERNAL_API_KEY: ${{ secrets.AI_INTERNAL_API_KEY }}
+          GHCR_USER: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 헬스체크
         uses: appleboy/ssh-action@v1.2.0
