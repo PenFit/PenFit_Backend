@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum CategoryCode {
+public enum CategoryCode implements DisplayNamed {
 
     FOOD_DELIVERY("외식·배달"),
     SHOPPING("쇼핑"),

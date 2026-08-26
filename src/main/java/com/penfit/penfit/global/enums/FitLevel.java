@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum FitLevel {
+public enum FitLevel implements DisplayNamed {
 
     VERY_HIGH("매우 높음"),
     HIGH("높음"),

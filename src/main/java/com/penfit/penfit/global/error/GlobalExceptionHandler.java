@@ -1,5 +1,6 @@
 package com.penfit.penfit.global.error;
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.penfit.penfit.global.common.ApiResTemplate;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -38,8 +41,25 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiResTemplate<Void>> handleUnreadable(HttpMessageNotReadableException e) {
+        if (e.getCause() instanceof InvalidFormatException invalidFormat
+                && invalidFormat.getTargetType() != null
+                && invalidFormat.getTargetType().isEnum()) {
+            return respond(ErrorCode.INVALID_INPUT, describeEnumMismatch(invalidFormat));
+        }
         log.warn("요청 본문을 읽을 수 없음: {}", e.getMessage());
         return respond(ErrorCode.MALFORMED_REQUEST, ErrorCode.MALFORMED_REQUEST.getMessage());
+    }
+
+    private String describeEnumMismatch(InvalidFormatException e) {
+        String field = e.getPath().stream()
+                .map(reference -> reference.getFieldName())
+                .filter(Objects::nonNull)
+                .reduce((first, second) -> second)
+                .orElse("값");
+        String allowed = Arrays.stream(e.getTargetType().getEnumConstants())
+                .map(String::valueOf)
+                .collect(Collectors.joining(", "));
+        return "%s: 허용되지 않은 값입니다. 사용 가능한 값 - %s".formatted(field, allowed);
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)

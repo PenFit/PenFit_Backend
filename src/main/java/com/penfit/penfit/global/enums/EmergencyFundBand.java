@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum EmergencyFundBand {
+public enum EmergencyFundBand implements DisplayNamed {
 
     EMERGENCY_LT_1M("100만원 미만"),
     EMERGENCY_1M_3M("100~300만원"),

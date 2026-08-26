@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum DebtBand {
+public enum DebtBand implements DisplayNamed {
 
     DEBT_NONE("없음"),
     DEBT_LT_10M("1,000만원 미만"),

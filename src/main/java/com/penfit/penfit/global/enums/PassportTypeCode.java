@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum PassportTypeCode {
+public enum PassportTypeCode implements DisplayNamed {
 
     STEADY_PIONEER("성실한 개척자형", "생애 변화와 시장 하락에도 납입을 유지하거나 늘리려는 경향"),
     FLEXIBLE_BALANCER("유연한 균형형", "계좌는 유지하면서 상황에 따라 납입액을 감액·일시중단하는 경향"),

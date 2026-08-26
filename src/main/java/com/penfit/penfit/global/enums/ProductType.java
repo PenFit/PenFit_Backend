@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum ProductType {
+public enum ProductType implements DisplayNamed {
 
     FUND_ACCOUNT("연금저축펀드 계좌", AccountType.PENSION_SAVINGS_FUND),
     IRP_ACCOUNT("개인형 IRP 계좌", AccountType.INDIVIDUAL_IRP),

@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum OccupationType {
+public enum OccupationType implements DisplayNamed {
 
     REGULAR_EMPLOYEE("정규직"),
     CONTRACT_EMPLOYEE("계약직"),

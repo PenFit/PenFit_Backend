@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum ProviderType {
+public enum ProviderType implements DisplayNamed {
 
     BANK("은행"),
     SECURITIES("증권사"),

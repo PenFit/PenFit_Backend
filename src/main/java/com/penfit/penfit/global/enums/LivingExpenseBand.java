@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum LivingExpenseBand {
+public enum LivingExpenseBand implements DisplayNamed {
 
     LIVING_LE_1M("100만원 이하"),
     LIVING_GT_1M_LE_1_5M("100~150만원"),
