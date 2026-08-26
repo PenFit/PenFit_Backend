@@ -10,7 +10,7 @@ main 푸시           → ① 테스트 → ② 이미지 빌드 → ③ 배포
 | 단계 | 실행 위치 | 내용 |
 |---|---|---|
 | ① 테스트 | ubuntu-latest | postgres:16 서비스 컨테이너와 함께 `./gradlew test` |
-| ② 이미지 빌드 | ubuntu-latest + ubuntu-24.04-arm | 두 아키텍처를 각각 네이티브로 빌드해 다이제스트로 푸시한 뒤 하나의 멀티 아키텍처 태그로 병합 |
+| ② 이미지 빌드 | ubuntu-latest | `linux/amd64` 로 빌드해 GHCR 에 커밋 SHA 태그로 푸시 |
 | ③ 배포 | SSH | compose·Caddyfile 전송 → 시크릿 주입 → pull & up -d → 헬스체크 |
 
 ## 값 주입 방식
