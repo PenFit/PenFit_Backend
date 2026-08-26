@@ -10,7 +10,7 @@ main 푸시           → ① 테스트 → ② 이미지 빌드 → ③ 배포
 | 단계 | 실행 위치 | 내용 |
 |---|---|---|
 | ① 테스트 | ubuntu-latest | postgres:16 서비스 컨테이너와 함께 `./gradlew test` |
-| ② 이미지 빌드 | ubuntu-24.04-arm | 네이티브 ARM64 빌드 후 GHCR 에 커밋 SHA 태그로 푸시 |
+| ② 이미지 빌드 | ubuntu-latest + ubuntu-24.04-arm | 두 아키텍처를 각각 네이티브로 빌드해 다이제스트로 푸시한 뒤 하나의 멀티 아키텍처 태그로 병합 |
 | ③ 배포 | SSH | compose·Caddyfile 전송 → 시크릿 주입 → pull & up -d → 헬스체크 |
 
 ## 값 주입 방식
@@ -23,28 +23,66 @@ main 푸시           → ① 테스트 → ② 이미지 빌드 → ③ 배포
 컨테이너를 올리지 않고 중단한다. 값이 빈 채로 조용히 잘못 뜨는 상황을 막기 위해서다.
 과거 배포가 남긴 `.env` 가 있으면 함께 삭제한다.
 
+## 리소스 예산
+
+배포 대상은 Always Free AMD 인스턴스(1 OCPU / 1GB)다.
+Ampere A1은 이 계정의 `standard-a1-core-count` 서비스 제한이 0이라 생성할 수 없다.
+
+메모리 제한을 걸고 실측한 값이다. (pgbench 동시 10 + HTTP 동시 200 부하 기준)
+
+| 구성요소 | 실측 피크 | 컨테이너 제한 |
+|---|---|---|
+| Spring Boot | 259MB | 420MB |
+| PostgreSQL | 143MB | 192MB |
+| Caddy | 27MB | 48MB |
+| 합계 | 429MB | 660MB |
+
+OS와 Docker 데몬이 약 220MB를 쓰므로 실사용은 약 650MB / 1,024MB다.
+
+적용한 튜닝:
+
+- JVM `-Xms128m -Xmx256m -XX:MaxMetaspaceSize=128m -XX:MaxDirectMemorySize=32m -XX:+UseSerialGC -Xss512k`
+  1 OCPU 환경에서 G1GC는 오버헤드가 커서 SerialGC를 쓴다.
+- Tomcat 최대 스레드 200 → 50. 스레드당 스택 512KB라 기본값이면 최대 100MB를 쓴다.
+- HikariCP 커넥션 풀 10. PostgreSQL `max_connections=20`보다 작아야 한다.
+- PostgreSQL `shared_buffers=64MB`, 병렬 워커 축소
+
+AI 서버(FastAPI)는 이 서버에 올리지 않는다. 남는 여유가 약 370MB인데
+FastAPI가 150~250MB를 쓰면 안전 마진이 사라진다. 별도 호스팅 후 `AI_BASE_URL`만 연결한다.
+
 ## 서버 사전 준비
 
-1. **인스턴스** — Ubuntu 22.04 / `VM.Standard.A1.Flex` / 2 OCPU / 12GB
-   Always Free 한도는 4 OCPU · 24GB다. AMD Micro(1GB)로는 동작하지 않는다.
+1. **인스턴스** — `VM.Standard.E2.1.Micro` (1 OCPU / 1GB, x86_64) + `Canonical Ubuntu 22.04`
+   Ampere A1은 이 계정의 `standard-a1-core-count` 한도가 0이라 생성할 수 없다.
+   접속 후 `uname -m` 이 `x86_64` 인지 확인한다.
 
 2. **포트 개방 — 두 군데 모두 해야 한다**
    - OCI 콘솔: Subnet → Security List → Ingress 에 `0.0.0.0/0` TCP 80, 443
    - 서버 안 iptables (Ubuntu 이미지는 기본 차단이다)
      ```bash
-     sudo iptables -I INPUT 6 -m state --state NEW -p tcp --dport 80 -j ACCEPT
-     sudo iptables -I INPUT 6 -m state --state NEW -p tcp --dport 443 -j ACCEPT
+     sudo apt update && sudo apt install -y iptables-persistent
+     sudo iptables -I INPUT -p tcp --dport 80 -j ACCEPT
+     sudo iptables -I INPUT -p tcp --dport 443 -j ACCEPT
      sudo netfilter-persistent save
      ```
 
-3. **Docker 설치**
+3. **스왑 4GB** — 메모리가 1GB뿐이라 안전망이 필요하다
+   ```bash
+   sudo fallocate -l 4G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile
+   echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+   ```
+
+4. **Docker 설치**
    ```bash
    curl -fsSL https://get.docker.com | sudo sh
    sudo usermod -aG docker $USER
    ```
    실행 후 SSH를 끊고 다시 접속해야 그룹 권한이 적용된다.
 
-4. **도메인** — 공인 IP를 가리키도록 A 레코드를 설정한다. Caddy가 Let's Encrypt 인증서를 자동 발급한다.
+5. **도메인** — DuckDNS 에서 서브도메인을 만들고 `current ip` 에 인스턴스 공인 IP를 등록한다.
+   Caddy가 Let's Encrypt 인증서를 자동 발급한다.
+   프론트엔드는 Vercel rewrites 로 `/api/*` 를 이 주소로 프록시한다. 브라우저 기준 동일 출처가 되어
+   Refresh Token 쿠키가 퍼스트파티로 동작하고 CORS 설정도 필요 없다.
 
 ## GitHub 설정
 
