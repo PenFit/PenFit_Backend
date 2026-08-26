@@ -2,7 +2,7 @@ name: CI / CD
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
   pull_request:
     branches: [main, develop]
   workflow_dispatch:
@@ -254,12 +254,12 @@ jobs:
           key: ${{ secrets.OCI_SSH_KEY }}
           script_stop: true
           script: |
-            for i in $(seq 1 30); do
+            for i in $(seq 1 60); do
               if docker exec penfit-app curl -fsS http://localhost:8080/actuator/health >/dev/null 2>&1; then
                 echo "정상 기동 확인 (${i}회차)"
                 exit 0
               fi
-              sleep 5
+              sleep 3
             done
             echo "헬스체크 실패. 애플리케이션 로그를 출력한다."
             docker logs --tail 100 penfit-app
