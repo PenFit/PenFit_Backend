@@ -24,7 +24,7 @@ EXPOSE 8080
 
 ENV TZ=Asia/Seoul \
     SPRING_PROFILES_ACTIVE=prod \
-    JAVA_OPTS="-XX:MaxRAMPercentage=70 -Duser.timezone=Asia/Seoul"
+    JAVA_OPTS="-Xms128m -Xmx256m -XX:MaxMetaspaceSize=128m -XX:MaxDirectMemorySize=32m -XX:+UseSerialGC -Xss512k -XX:+ExitOnOutOfMemoryError -Duser.timezone=Asia/Seoul"
 
 HEALTHCHECK --interval=15s --timeout=5s --start-period=60s --retries=5 \
   CMD curl -fsS http://localhost:8080/actuator/health/readiness || exit 1

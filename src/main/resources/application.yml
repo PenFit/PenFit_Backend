@@ -9,6 +9,12 @@ spring:
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 10000
+      idle-timeout: 300000
+      max-lifetime: 1200000
 
   jpa:
     hibernate:
@@ -31,6 +37,12 @@ spring:
 server:
   port: 8080
   shutdown: graceful
+  tomcat:
+    threads:
+      max: 50
+      min-spare: 5
+    accept-count: 100
+    max-connections: 200
 
 management:
   endpoints:
