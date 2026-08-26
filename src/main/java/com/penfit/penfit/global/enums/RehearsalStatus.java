@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum RehearsalStatus {
+public enum RehearsalStatus implements DisplayNamed {
 
     IN_PROGRESS("진행 중"),
     ANALYZING("AI 분석 중"),

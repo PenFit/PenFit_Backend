@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum MarketRiskLevel {
+public enum MarketRiskLevel implements DisplayNamed {
 
     LOW("낮음"),
     MEDIUM("중간"),

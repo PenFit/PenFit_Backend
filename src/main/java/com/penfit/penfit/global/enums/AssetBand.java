@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum AssetBand {
+public enum AssetBand implements DisplayNamed {
 
     ASSET_LT_10M("1,000만원 미만"),
     ASSET_10M_30M("1,000~3,000만원"),

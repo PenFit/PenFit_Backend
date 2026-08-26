@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum ScenarioCode {
+public enum ScenarioCode implements DisplayNamed {
 
     JOB_CHANGE("이직", 1),
     INDEPENDENCE("독립", 2),
