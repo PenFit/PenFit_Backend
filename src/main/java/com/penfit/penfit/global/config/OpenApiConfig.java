@@ -1,6 +1,8 @@
 package com.penfit.penfit.global.config;
 
 import com.penfit.penfit.global.enums.DisplayNamed;
+import com.penfit.penfit.global.enums.RehearsalOptionCatalog;
+import com.penfit.penfit.global.enums.ScenarioCode;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
@@ -27,6 +29,8 @@ public class OpenApiConfig {
 
     private static final String SECURITY_SCHEME_NAME = "bearerAuth";
     private static final String ENUM_PACKAGE = "com.penfit.penfit.global.enums";
+    private static final String ANSWER_REQUEST_SCHEMA = "AnswerSaveRequest";
+    private static final String OPTION_CODE_PROPERTY = "optionCode";
 
     private final Map<Set<String>, Class<?>> enumIndex = buildEnumIndex();
 
@@ -45,7 +49,39 @@ public class OpenApiConfig {
                 return;
             }
             openApi.getComponents().getSchemas().values().forEach(this::describe);
+            applyScenarioOptionGuide(openApi);
         };
+    }
+
+    private void applyScenarioOptionGuide(OpenAPI openApi) {
+        Schema<?> request = openApi.getComponents().getSchemas().get(ANSWER_REQUEST_SCHEMA);
+        if (request == null || request.getProperties() == null) {
+            return;
+        }
+        Schema<?> optionCode = (Schema<?>) request.getProperties().get(OPTION_CODE_PROPERTY);
+        if (optionCode == null) {
+            return;
+        }
+        optionCode.setDescription(scenarioOptionGuide());
+    }
+
+    private String scenarioOptionGuide() {
+        StringBuilder guide = new StringBuilder(
+                "상황마다 사용할 수 있는 선택지가 다르다. 경로의 scenarioCode 에 해당하는 값만 보낼 수 있고, "
+                        + "허용되지 않은 조합은 RH4001 을 반환한다.");
+        for (ScenarioCode scenarioCode : ScenarioCode.values()) {
+            guide.append("<br><br>**`")
+                    .append(scenarioCode.name())
+                    .append("`** ")
+                    .append(scenarioCode.getDisplayName());
+            for (RehearsalOptionCatalog.Entry entry : RehearsalOptionCatalog.optionsOf(scenarioCode)) {
+                guide.append("<br>`")
+                        .append(entry.optionCode().name())
+                        .append("` ")
+                        .append(entry.meaning());
+            }
+        }
+        return guide.toString();
     }
 
     private void describe(Schema<?> schema) {
