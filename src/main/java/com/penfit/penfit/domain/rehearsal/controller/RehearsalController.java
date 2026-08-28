@@ -48,7 +48,7 @@ public class RehearsalController {
     }
 
     @Operation(summary = "리허설 답변 저장",
-            description = "같은 상황의 답변이 이미 있으면 RH4091 을 반환한다.")
+            description = "상황별로 사용할 수 있는 선택지는 요청 본문 optionCode 설명에 있다. 같은 상황의 답변이 이미 있으면 RH4091 을 반환한다.")
     @PostMapping("/api/v1/rehearsals/{rehearsalId}/answers/{scenarioCode}")
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResTemplate<RehearsalDetailResponse> saveAnswer(
