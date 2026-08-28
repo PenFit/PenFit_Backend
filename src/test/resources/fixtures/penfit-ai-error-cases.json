@@ -1,0 +1,40 @@
+{
+  "pensionPassportAnalyze": [
+    {
+      "name": "리허설 답변이 5개",
+      "expectedHttpStatus": 400,
+      "expectedCode": "INVALID_INPUT",
+      "reason": "rehearsalAnswers 는 정확히 6개여야 한다"
+    },
+    {
+      "name": "동일한 scenarioCode 중복",
+      "expectedHttpStatus": 400,
+      "expectedCode": "INVALID_INPUT",
+      "reason": "6개 필수 상황 코드가 모두 한 번씩 있어야 한다"
+    },
+    {
+      "name": "monthlySalary 음수",
+      "expectedHttpStatus": 400,
+      "expectedCode": "INVALID_INPUT",
+      "reason": "금액 필드는 0 이상이어야 한다"
+    },
+    {
+      "name": "분석 결과 생성 실패",
+      "expectedHttpStatus": 422,
+      "expectedCode": "ANALYSIS_FAILED",
+      "reason": "입력은 정상이나 결과를 만들지 못한 경우"
+    },
+    {
+      "name": "제한 시간 초과",
+      "expectedHttpStatus": 504,
+      "expectedCode": "MODEL_TIMEOUT",
+      "reason": "MODEL_TIMEOUT 안에 분석을 끝내지 못한 경우"
+    },
+    {
+      "name": "내부 API 키 불일치",
+      "expectedHttpStatus": 401,
+      "expectedCode": "INTERNAL_API_KEY_INVALID",
+      "reason": "X-Internal-Api-Key 누락 또는 불일치"
+    }
+  ]
+}
