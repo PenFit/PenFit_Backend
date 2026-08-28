@@ -23,9 +23,26 @@ public record PassportAnalyzeRequest(
             Long monthlySavings,
             Long currentInvestment
     ) {
+
+        public static FinancialProfilePayload from(FinancialProfile profile) {
+            return new FinancialProfilePayload(
+                    profile.getAgeBand().name(),
+                    profile.getOccupationType().name(),
+                    profile.getMonthlySalary(),
+                    profile.getLivingExpenseBand().name(),
+                    profile.getAssetBand().name(),
+                    profile.getDebtBand().name(),
+                    profile.getEmergencyFundBand().name(),
+                    profile.getMonthlySavings(),
+                    profile.getCurrentInvestment());
+        }
     }
 
     public record PensionSetupPayload(String accountType, Long monthlyContribution) {
+
+        public static PensionSetupPayload from(PensionSetup setup) {
+            return new PensionSetupPayload(setup.getAccountType().name(), setup.getMonthlyContribution());
+        }
     }
 
     public record RehearsalAnswerPayload(String scenarioCode, String optionCode) {
@@ -34,19 +51,8 @@ public record PassportAnalyzeRequest(
     public static PassportAnalyzeRequest of(FinancialProfile profile, PensionSetup setup,
                                             List<RehearsalAnswer> answers) {
         return new PassportAnalyzeRequest(
-                new FinancialProfilePayload(
-                        profile.getAgeBand().name(),
-                        profile.getOccupationType().name(),
-                        profile.getMonthlySalary(),
-                        profile.getLivingExpenseBand().name(),
-                        profile.getAssetBand().name(),
-                        profile.getDebtBand().name(),
-                        profile.getEmergencyFundBand().name(),
-                        profile.getMonthlySavings(),
-                        profile.getCurrentInvestment()),
-                new PensionSetupPayload(
-                        setup.getAccountType().name(),
-                        setup.getMonthlyContribution()),
+                FinancialProfilePayload.from(profile),
+                PensionSetupPayload.from(setup),
                 answers.stream()
                         .map(answer -> new RehearsalAnswerPayload(
                                 answer.getScenarioCode().name(),
