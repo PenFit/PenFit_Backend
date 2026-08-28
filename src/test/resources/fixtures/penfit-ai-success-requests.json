@@ -1,0 +1,27 @@
+{
+  "pensionPassportAnalyze": {
+    "financialProfile": {
+      "ageBand": "AGE_26_28",
+      "occupationType": "REGULAR_EMPLOYEE",
+      "monthlySalary": 2800000,
+      "livingExpenseBand": "LIVING_GT_1M_LE_1_5M",
+      "assetBand": "ASSET_10M_30M",
+      "debtBand": "DEBT_NONE",
+      "emergencyFundBand": "EMERGENCY_1M_3M",
+      "monthlySavings": 300000,
+      "currentInvestment": 100000
+    },
+    "pensionSetup": {
+      "accountType": "PENSION_SAVINGS_FUND",
+      "monthlyContribution": 100000
+    },
+    "rehearsalAnswers": [
+      { "scenarioCode": "JOB_CHANGE", "optionCode": "KEEP" },
+      { "scenarioCode": "INDEPENDENCE", "optionCode": "CUT_EXPENSE_AND_KEEP" },
+      { "scenarioCode": "MARRIAGE", "optionCode": "REDUCE_EVENT_COST_AND_KEEP" },
+      { "scenarioCode": "HOME_PURCHASE", "optionCode": "DELAY_EVENT" },
+      { "scenarioCode": "CHILDBIRTH", "optionCode": "KEEP" },
+      { "scenarioCode": "MARKET_DOWNTURN", "optionCode": "REBALANCE" }
+    ]
+  }
+}

@@ -60,6 +60,27 @@ public class RehearsalController {
                 rehearsalService.saveAnswer(userId, rehearsalId, scenarioCode, request.optionCode()));
     }
 
+    @Operation(summary = "리허설 답변 제출과 AI 분석 시작",
+            description = "6개 상황의 답변이 모두 있어야 한다. AI 결과를 기다리지 않고 202 를 반환하므로 "
+                    + "이후에는 리허설 상태 조회로 폴링한다.")
+    @PostMapping("/api/v1/rehearsals/{rehearsalId}/complete")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public ApiResTemplate<RehearsalDetailResponse> complete(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable Long rehearsalId) {
+        return ApiResTemplate.success(SuccessCode.ACCEPTED, rehearsalService.complete(userId, rehearsalId));
+    }
+
+    @Operation(summary = "AI 분석 재시도",
+            description = "분석에 실패한 리허설만 재시도할 수 있다. 저장된 답변을 다시 사용하므로 본문이 없다.")
+    @PostMapping("/api/v1/rehearsals/{rehearsalId}/analysis/retry")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public ApiResTemplate<RehearsalDetailResponse> retryAnalysis(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable Long rehearsalId) {
+        return ApiResTemplate.success(SuccessCode.ACCEPTED, rehearsalService.retryAnalysis(userId, rehearsalId));
+    }
+
     @Operation(summary = "리허설 진행 상태와 저장된 답변 조회",
             description = "화면 복귀와 새로고침, AI 분석 대기 중 폴링에 사용한다.")
     @GetMapping("/api/v1/rehearsals/{rehearsalId}")

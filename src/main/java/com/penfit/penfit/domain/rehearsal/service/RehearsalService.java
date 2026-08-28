@@ -10,6 +10,7 @@ import com.penfit.penfit.domain.rehearsal.entity.Rehearsal;
 import com.penfit.penfit.domain.rehearsal.entity.RehearsalAnswer;
 import com.penfit.penfit.domain.rehearsal.entity.RehearsalScenario;
 import com.penfit.penfit.domain.rehearsal.entity.RehearsalScenarioOption;
+import com.penfit.penfit.domain.rehearsal.event.RehearsalAnalysisRequested;
 import com.penfit.penfit.domain.rehearsal.repository.RehearsalAnswerRepository;
 import com.penfit.penfit.domain.rehearsal.repository.RehearsalRepository;
 import com.penfit.penfit.domain.rehearsal.repository.RehearsalScenarioOptionRepository;
@@ -21,6 +22,7 @@ import com.penfit.penfit.global.enums.ScenarioCode;
 import com.penfit.penfit.global.error.BusinessException;
 import com.penfit.penfit.global.error.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +42,7 @@ public class RehearsalService {
     private final RehearsalScenarioOptionRepository rehearsalScenarioOptionRepository;
     private final FinancialProfileRepository financialProfileRepository;
     private final PensionSetupRepository pensionSetupRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public RehearsalStartResponse start(Long userId) {
@@ -92,6 +95,35 @@ public class RehearsalService {
                 .scenarioCode(scenarioCode)
                 .optionCode(optionCode)
                 .build());
+
+        return detailOf(rehearsal);
+    }
+
+    @Transactional
+    public RehearsalDetailResponse complete(Long userId, Long rehearsalId) {
+        Rehearsal rehearsal = requireOwnedRehearsal(userId, rehearsalId);
+        if (!rehearsal.isInProgress()) {
+            throw new BusinessException(ErrorCode.REHEARSAL_NOT_IN_PROGRESS);
+        }
+        if (rehearsalAnswerRepository.countByRehearsalId(rehearsalId) != totalScenarios()) {
+            throw new BusinessException(ErrorCode.REHEARSAL_ANSWERS_INCOMPLETE);
+        }
+
+        rehearsal.startAnalysis();
+        eventPublisher.publishEvent(new RehearsalAnalysisRequested(rehearsalId));
+
+        return detailOf(rehearsal);
+    }
+
+    @Transactional
+    public RehearsalDetailResponse retryAnalysis(Long userId, Long rehearsalId) {
+        Rehearsal rehearsal = requireOwnedRehearsal(userId, rehearsalId);
+        if (!rehearsal.isFailed()) {
+            throw new BusinessException(ErrorCode.REHEARSAL_RETRY_NOT_ALLOWED);
+        }
+
+        rehearsal.retryAnalysis();
+        eventPublisher.publishEvent(new RehearsalAnalysisRequested(rehearsalId));
 
         return detailOf(rehearsal);
     }
