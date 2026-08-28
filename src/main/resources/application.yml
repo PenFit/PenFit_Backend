@@ -64,6 +64,11 @@ springdoc:
     operations-sorter: alpha
 
 penfit:
+  pension:
+    expected-return-rate: 0.05
+    contribution-years: 30
+    minimum-monthly-contribution: 50000
+
   jwt:
     secret: ${JWT_SECRET}
     access-expiration: ${JWT_ACCESS_EXPIRATION}
