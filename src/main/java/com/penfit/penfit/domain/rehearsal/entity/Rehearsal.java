@@ -64,4 +64,36 @@ public class Rehearsal extends BaseTimeEntity {
     public boolean isInProgress() {
         return this.status == RehearsalStatus.IN_PROGRESS;
     }
+
+    public boolean isFailed() {
+        return this.status == RehearsalStatus.FAILED;
+    }
+
+    public boolean isAnalyzing() {
+        return this.status == RehearsalStatus.ANALYZING;
+    }
+
+    public void startAnalysis() {
+        this.status = RehearsalStatus.ANALYZING;
+        this.failureCode = null;
+        this.failureMessage = null;
+    }
+
+    public void retryAnalysis() {
+        this.retryCount += 1;
+        startAnalysis();
+    }
+
+    public void completeAnalysis() {
+        this.status = RehearsalStatus.COMPLETED;
+        this.completedAt = OffsetDateTime.now();
+        this.failureCode = null;
+        this.failureMessage = null;
+    }
+
+    public void failAnalysis(String failureCode, String failureMessage) {
+        this.status = RehearsalStatus.FAILED;
+        this.failureCode = failureCode;
+        this.failureMessage = failureMessage;
+    }
 }
