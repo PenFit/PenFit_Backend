@@ -16,12 +16,55 @@
       "monthlyContribution": 100000
     },
     "rehearsalAnswers": [
-      { "scenarioCode": "JOB_CHANGE", "optionCode": "KEEP" },
-      { "scenarioCode": "INDEPENDENCE", "optionCode": "CUT_EXPENSE_AND_KEEP" },
-      { "scenarioCode": "MARRIAGE", "optionCode": "REDUCE_EVENT_COST_AND_KEEP" },
-      { "scenarioCode": "HOME_PURCHASE", "optionCode": "DELAY_EVENT" },
-      { "scenarioCode": "CHILDBIRTH", "optionCode": "KEEP" },
-      { "scenarioCode": "MARKET_DOWNTURN", "optionCode": "REBALANCE" }
+      {
+        "scenarioCode": "JOB_CHANGE",
+        "optionCode": "KEEP"
+      },
+      {
+        "scenarioCode": "INDEPENDENCE",
+        "optionCode": "CUT_EXPENSE_AND_KEEP"
+      },
+      {
+        "scenarioCode": "MARRIAGE",
+        "optionCode": "REDUCE_EVENT_COST_AND_KEEP"
+      },
+      {
+        "scenarioCode": "HOME_PURCHASE",
+        "optionCode": "DELAY_EVENT"
+      },
+      {
+        "scenarioCode": "CHILDBIRTH",
+        "optionCode": "KEEP"
+      },
+      {
+        "scenarioCode": "MARKET_DOWNTURN",
+        "optionCode": "REBALANCE"
+      }
     ]
+  },
+  "pensionPlanGenerate": {
+    "financialProfile": {
+      "ageBand": "AGE_26_28",
+      "occupationType": "REGULAR_EMPLOYEE",
+      "monthlySalary": 2800000,
+      "livingExpenseBand": "LIVING_GT_1M_LE_1_5M",
+      "assetBand": "ASSET_10M_30M",
+      "debtBand": "DEBT_NONE",
+      "emergencyFundBand": "EMERGENCY_1M_3M",
+      "monthlySavings": 300000,
+      "currentInvestment": 100000
+    },
+    "currentPensionSetup": {
+      "accountType": "PENSION_SAVINGS_FUND",
+      "monthlyContribution": 100000
+    },
+    "pensionPassport": {
+      "typeCode": "STEADY_PIONEER",
+      "sustainableMonthlyContribution": 120000,
+      "biggestInterruptionRiskCode": "HOME_PURCHASE",
+      "marketRiskLevelCode": "MEDIUM",
+      "typeSummary": "생애 변화와 시장 하락에도 납입을 유지하거나 늘리려는 경향",
+      "analysisSummary": "6가지 상황에서도 꾸준히 납입을 유지하려는 경향이 있어요."
+    }
   }
 }

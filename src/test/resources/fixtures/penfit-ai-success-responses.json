@@ -59,5 +59,21 @@
       }
     ],
     "modelVersion": "passport-model-1.0"
+  },
+  "pensionPlanGenerate": {
+    "planName": "균형 있게 시작",
+    "accountType": "PENSION_SAVINGS_FUND",
+    "monthlyContribution": 120000,
+    "assetAllocation": {
+      "stockRatio": 50.0,
+      "bondRatio": 40.0,
+      "depositRatio": 10.0
+    },
+    "advantages": [
+      "위험과 수익의 균형이 좋아요",
+      "장기 자산 성장에 적합해요"
+    ],
+    "recommendationReason": "현재 저축 여력과 리허설에서 확인된 납입 유지 성향을 고려해 월 부담을 관리하면서 장기 성장을 기대할 수 있는 구성을 추천했어요.",
+    "modelVersion": "pension-plan-model-1.0"
   }
 }
