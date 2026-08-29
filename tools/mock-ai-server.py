@@ -63,6 +63,8 @@ class Handler(BaseHTTPRequestHandler):
         response = fixtures[key]
         if key == "pensionPassportAnalyze":
             response = reflect_answers(response, body)
+        if key == "productRecommendationsGenerate":
+            response = reflect_candidates(response, body)
 
         self.respond(200, response)
 
@@ -91,6 +93,22 @@ class Handler(BaseHTTPRequestHandler):
 
     def log_message(self, fmt, *args):
         pass
+
+
+def reflect_candidates(response, body):
+    try:
+        candidates = json.loads(body).get("productCandidates") or []
+    except json.JSONDecodeError:
+        return response
+    if len(candidates) < len(response["recommendations"]):
+        return response
+
+    reflected = dict(response)
+    reflected["recommendations"] = [
+        {**item, "productId": candidates[index]["productId"]}
+        for index, item in enumerate(response["recommendations"])
+    ]
+    return reflected
 
 
 def reflect_answers(response, body):

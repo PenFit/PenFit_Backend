@@ -1,0 +1,134 @@
+[
+  {
+    "productId": 1,
+    "providerType": "SECURITIES",
+    "providerName": "미래에셋증권",
+    "productName": "미래에셋 연금저축펀드",
+    "accountType": "PENSION_SAVINGS_FUND",
+    "productType": "FUND_ACCOUNT",
+    "feeMinRate": 0.15,
+    "feeMaxRate": 0.45,
+    "summary": "국내 최대 규모의 연금전용 펀드 라인업. ETF·펀드 선택 폭 넓음"
+  },
+  {
+    "productId": 2,
+    "providerType": "SECURITIES",
+    "providerName": "삼성증권",
+    "productName": "삼성증권 연금저축계좌",
+    "accountType": "PENSION_SAVINGS_FUND",
+    "productType": "FUND_ACCOUNT",
+    "feeMinRate": 0.12,
+    "feeMaxRate": 0.4,
+    "summary": "삼성자산운용 ETF 라인업 + 투자 가이드 제공"
+  },
+  {
+    "productId": 3,
+    "providerType": "SECURITIES",
+    "providerName": "한국투자증권",
+    "productName": "한국투자증권 연금저축펀드",
+    "accountType": "PENSION_SAVINGS_FUND",
+    "productType": "FUND_ACCOUNT",
+    "feeMinRate": 0.1,
+    "feeMaxRate": 0.35,
+    "summary": "업계 최저 수준 펀드 판매수수료, 해외ETF 강점"
+  },
+  {
+    "productId": 4,
+    "providerType": "SECURITIES",
+    "providerName": "KB증권",
+    "productName": "KB증권 연금저축펀드",
+    "accountType": "PENSION_SAVINGS_FUND",
+    "productType": "FUND_ACCOUNT",
+    "feeMinRate": 0.14,
+    "feeMaxRate": 0.42,
+    "summary": "은행 계열 연계와 연금 상담 채널이 넓은 계좌"
+  },
+  {
+    "productId": 5,
+    "providerType": "SECURITIES",
+    "providerName": "NH투자증권",
+    "productName": "NH투자증권 연금저축펀드",
+    "accountType": "PENSION_SAVINGS_FUND",
+    "productType": "FUND_ACCOUNT",
+    "feeMinRate": 0.13,
+    "feeMaxRate": 0.41,
+    "summary": "TDF 중심 자동 배분 상품 구성이 잘 갖춰진 계좌"
+  },
+  {
+    "productId": 6,
+    "providerType": "SECURITIES",
+    "providerName": "미래에셋증권",
+    "productName": "미래에셋 개인형 IRP",
+    "accountType": "INDIVIDUAL_IRP",
+    "productType": "IRP_ACCOUNT",
+    "feeMinRate": 0.0,
+    "feeMaxRate": 0.3,
+    "summary": "퇴직금과 개인 납입을 한 계좌에서 관리"
+  },
+  {
+    "productId": 7,
+    "providerType": "SECURITIES",
+    "providerName": "삼성증권",
+    "productName": "삼성증권 개인형 IRP",
+    "accountType": "INDIVIDUAL_IRP",
+    "productType": "IRP_ACCOUNT",
+    "feeMinRate": 0.0,
+    "feeMaxRate": 0.28,
+    "summary": "IRP 운용관리 수수료 면제 구간이 있는 계좌"
+  },
+  {
+    "productId": 8,
+    "providerType": "BANK",
+    "providerName": "KB국민은행",
+    "productName": "KB국민은행 개인형 IRP",
+    "accountType": "INDIVIDUAL_IRP",
+    "productType": "IRP_ACCOUNT",
+    "feeMinRate": 0.0,
+    "feeMaxRate": 0.35,
+    "summary": "예금 중심으로 안전하게 운용하기 좋은 IRP"
+  },
+  {
+    "productId": 9,
+    "providerType": "BANK",
+    "providerName": "신한은행",
+    "productName": "신한은행 개인형 IRP",
+    "accountType": "INDIVIDUAL_IRP",
+    "productType": "IRP_ACCOUNT",
+    "feeMinRate": 0.0,
+    "feeMaxRate": 0.33,
+    "summary": "자동이체와 연금 관리 알림이 편리한 은행 IRP"
+  },
+  {
+    "productId": 10,
+    "providerType": "INSURANCE",
+    "providerName": "삼성생명",
+    "productName": "삼성생명 연금저축보험",
+    "accountType": "PENSION_SAVINGS_INSURANCE",
+    "productType": "INSURANCE_PRODUCT",
+    "feeMinRate": 4.0,
+    "feeMaxRate": 7.0,
+    "summary": "정해진 방식에 따라 매달 꾸준히 쌓는 보험형 연금"
+  },
+  {
+    "productId": 11,
+    "providerType": "INSURANCE",
+    "providerName": "한화생명",
+    "productName": "한화생명 연금저축보험",
+    "accountType": "PENSION_SAVINGS_INSURANCE",
+    "productType": "INSURANCE_PRODUCT",
+    "feeMinRate": 4.0,
+    "feeMaxRate": 6.8,
+    "summary": "납입 유예 옵션이 있어 소득 변동에 대응하기 쉬움"
+  },
+  {
+    "productId": 12,
+    "providerType": "INSURANCE",
+    "providerName": "교보생명",
+    "productName": "교보생명 연금저축보험",
+    "accountType": "PENSION_SAVINGS_INSURANCE",
+    "productType": "INSURANCE_PRODUCT",
+    "feeMinRate": 4.0,
+    "feeMaxRate": 6.5,
+    "summary": "최저보증이율이 있어 하락장에서도 적립금이 유지됨"
+  }
+]

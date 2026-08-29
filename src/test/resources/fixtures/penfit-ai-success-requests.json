@@ -66,5 +66,32 @@
       "typeSummary": "생애 변화와 시장 하락에도 납입을 유지하거나 늘리려는 경향",
       "analysisSummary": "6가지 상황에서도 꾸준히 납입을 유지하려는 경향이 있어요."
     }
+  },
+  "productRecommendationsGenerate": {
+    "pensionPlan": {
+      "accountType": "PENSION_SAVINGS_FUND",
+      "monthlyContribution": 120000,
+      "stockRatio": 50.0,
+      "bondRatio": 40.0,
+      "depositRatio": 10.0
+    },
+    "pensionPassport": {
+      "typeCode": "STEADY_PIONEER",
+      "marketRiskLevelCode": "MEDIUM"
+    },
+    "productCandidates": [
+      {
+        "productId": 101,
+        "providerType": "SECURITIES",
+        "providerName": "미래에셋증권",
+        "productName": "미래에셋 연금저축펀드",
+        "accountType": "PENSION_SAVINGS_FUND",
+        "productType": "FUND_ACCOUNT",
+        "feeMinRate": 0.15,
+        "feeMaxRate": 0.45,
+        "summary": "국내 최대 규모의 연금전용 펀드 라인업. ETF·펀드 선택 폭 넓음"
+      }
+    ],
+    "recommendationCount": 3
   }
 }
