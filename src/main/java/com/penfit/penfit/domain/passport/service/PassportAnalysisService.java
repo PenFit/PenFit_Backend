@@ -95,7 +95,8 @@ public class PassportAnalysisService {
 
     private void require(boolean condition, String reason) {
         if (!condition) {
-            throw new BusinessException(ErrorCode.AI_INVALID_RESPONSE, reason);
+            log.warn("연금 패스포트 응답 검증 실패 reason={}", reason);
+            throw new BusinessException(ErrorCode.AI_INVALID_RESPONSE);
         }
     }
 

@@ -75,5 +75,31 @@
     ],
     "recommendationReason": "현재 저축 여력과 리허설에서 확인된 납입 유지 성향을 고려해 월 부담을 관리하면서 장기 성장을 기대할 수 있는 구성을 추천했어요.",
     "modelVersion": "pension-plan-model-1.0"
+  },
+  "productRecommendationsGenerate": {
+    "recommendations": [
+      {
+        "productId": 101,
+        "rank": 1,
+        "fitScore": 0.9234,
+        "fitLevel": "VERY_HIGH",
+        "recommendationReason": "장기 성장성과 다양한 투자 선택지를 원하는 현재 계획과 잘 맞아요."
+      },
+      {
+        "productId": 102,
+        "rank": 2,
+        "fitScore": 0.875,
+        "fitLevel": "HIGH",
+        "recommendationReason": "분산투자를 시작하려는 사용자에게 적합한 상품 구성을 제공해요."
+      },
+      {
+        "productId": 103,
+        "rank": 3,
+        "fitScore": 0.812,
+        "fitLevel": "HIGH",
+        "recommendationReason": "해외자산을 포함한 장기 분산투자 계획과 잘 맞아요."
+      }
+    ],
+    "modelVersion": "product-recommendation-model-1.0"
   }
 }
