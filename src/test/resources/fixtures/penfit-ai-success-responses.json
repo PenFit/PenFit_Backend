@@ -101,5 +101,48 @@
       }
     ],
     "modelVersion": "product-recommendation-model-1.0"
+  },
+  "spendingMissionAnalyze": {
+    "spendingAnalysis": {
+      "topCategoryCode": "FOOD_DELIVERY",
+      "recurringExpense": 10000,
+      "reducibleAmount": 120000,
+      "categorySpending": [
+        {
+          "categoryCode": "FOOD_DELIVERY",
+          "amount": 180000,
+          "ratio": 54.55
+        },
+        {
+          "categoryCode": "SHOPPING",
+          "amount": 100000,
+          "ratio": 30.3
+        },
+        {
+          "categoryCode": "TRANSPORTATION",
+          "amount": 40000,
+          "ratio": 12.12
+        },
+        {
+          "categoryCode": "SUBSCRIPTION",
+          "amount": 10000,
+          "ratio": 3.03
+        }
+      ],
+      "keyInsights": [
+        "외식·배달 지출이 전체 소비의 약 55%로 가장 큰 비중을 차지해요.",
+        "월간 구독 서비스에 1만원을 반복해서 지출하고 있어요.",
+        "현재 소비에서 월 약 12만원을 줄일 여지가 있어요."
+      ],
+      "summary": "외식·배달 지출 비중이 가장 높고 매월 반복되는 구독 지출도 확인됐어요."
+    },
+    "mission": {
+      "title": "커피값 아껴서 연금 넣어보기",
+      "description": "이번 주 외식·배달비를 줄여 3만원을 확보해보세요.",
+      "targetAmount": 30000,
+      "durationDays": 7,
+      "reason": "외식·배달 지출이 전체 소비의 약 55%를 차지해 가장 실천 가능한 절감 영역으로 판단했어요."
+    },
+    "modelVersion": "spending-mission-model-1.0"
   }
 }
