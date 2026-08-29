@@ -1,0 +1,206 @@
+[
+  {
+    "categoryCode": "FOOD_DELIVERY",
+    "merchantName": "샘플 카페",
+    "amount": 4500,
+    "transactedAt": "2026-07-01T08:40:00+09:00"
+  },
+  {
+    "categoryCode": "TRANSPORTATION",
+    "merchantName": "샘플 교통카드 충전",
+    "amount": 10000,
+    "transactedAt": "2026-07-02T07:50:00+09:00"
+  },
+  {
+    "categoryCode": "FOOD_DELIVERY",
+    "merchantName": "샘플 카페",
+    "amount": 4500,
+    "transactedAt": "2026-07-02T08:45:00+09:00"
+  },
+  {
+    "categoryCode": "FOOD_DELIVERY",
+    "merchantName": "샘플 카페",
+    "amount": 4500,
+    "transactedAt": "2026-07-03T08:50:00+09:00"
+  },
+  {
+    "categoryCode": "FOOD_DELIVERY",
+    "merchantName": "샘플 배달앱",
+    "amount": 15000,
+    "transactedAt": "2026-07-04T19:10:00+09:00"
+  },
+  {
+    "categoryCode": "SHOPPING",
+    "merchantName": "샘플 온라인몰",
+    "amount": 45000,
+    "transactedAt": "2026-07-05T21:12:00+09:00"
+  },
+  {
+    "categoryCode": "FOOD_DELIVERY",
+    "merchantName": "샘플 카페",
+    "amount": 4500,
+    "transactedAt": "2026-07-06T08:40:00+09:00"
+  },
+  {
+    "categoryCode": "FOOD_DELIVERY",
+    "merchantName": "샘플 카페",
+    "amount": 4500,
+    "transactedAt": "2026-07-07T08:45:00+09:00"
+  },
+  {
+    "categoryCode": "FOOD_DELIVERY",
+    "merchantName": "샘플 카페",
+    "amount": 4500,
+    "transactedAt": "2026-07-08T08:50:00+09:00"
+  },
+  {
+    "categoryCode": "TRANSPORTATION",
+    "merchantName": "샘플 교통카드 충전",
+    "amount": 10000,
+    "transactedAt": "2026-07-09T07:50:00+09:00"
+  },
+  {
+    "categoryCode": "FOOD_DELIVERY",
+    "merchantName": "샘플 카페",
+    "amount": 4500,
+    "transactedAt": "2026-07-09T08:40:00+09:00"
+  },
+  {
+    "categoryCode": "FOOD_DELIVERY",
+    "merchantName": "샘플 카페",
+    "amount": 4500,
+    "transactedAt": "2026-07-10T08:45:00+09:00"
+  },
+  {
+    "categoryCode": "SUBSCRIPTION",
+    "merchantName": "샘플 OTT",
+    "amount": 10000,
+    "transactedAt": "2026-07-10T09:00:00+09:00"
+  },
+  {
+    "categoryCode": "FOOD_DELIVERY",
+    "merchantName": "샘플 배달앱",
+    "amount": 15000,
+    "transactedAt": "2026-07-11T19:17:00+09:00"
+  },
+  {
+    "categoryCode": "FOOD_DELIVERY",
+    "merchantName": "샘플 배달앱",
+    "amount": 15000,
+    "transactedAt": "2026-07-12T19:24:00+09:00"
+  },
+  {
+    "categoryCode": "FOOD_DELIVERY",
+    "merchantName": "샘플 카페",
+    "amount": 4500,
+    "transactedAt": "2026-07-13T08:50:00+09:00"
+  },
+  {
+    "categoryCode": "FOOD_DELIVERY",
+    "merchantName": "샘플 카페",
+    "amount": 4500,
+    "transactedAt": "2026-07-14T08:40:00+09:00"
+  },
+  {
+    "categoryCode": "FOOD_DELIVERY",
+    "merchantName": "샘플 카페",
+    "amount": 4500,
+    "transactedAt": "2026-07-15T08:45:00+09:00"
+  },
+  {
+    "categoryCode": "SHOPPING",
+    "merchantName": "샘플 편집숍",
+    "amount": 32000,
+    "transactedAt": "2026-07-15T15:30:00+09:00"
+  },
+  {
+    "categoryCode": "TRANSPORTATION",
+    "merchantName": "샘플 교통카드 충전",
+    "amount": 10000,
+    "transactedAt": "2026-07-16T07:50:00+09:00"
+  },
+  {
+    "categoryCode": "FOOD_DELIVERY",
+    "merchantName": "샘플 카페",
+    "amount": 4500,
+    "transactedAt": "2026-07-16T08:50:00+09:00"
+  },
+  {
+    "categoryCode": "FOOD_DELIVERY",
+    "merchantName": "샘플 카페",
+    "amount": 4500,
+    "transactedAt": "2026-07-17T08:40:00+09:00"
+  },
+  {
+    "categoryCode": "FOOD_DELIVERY",
+    "merchantName": "샘플 배달앱",
+    "amount": 15000,
+    "transactedAt": "2026-07-18T19:31:00+09:00"
+  },
+  {
+    "categoryCode": "FOOD_DELIVERY",
+    "merchantName": "샘플 카페",
+    "amount": 4500,
+    "transactedAt": "2026-07-20T08:45:00+09:00"
+  },
+  {
+    "categoryCode": "FOOD_DELIVERY",
+    "merchantName": "샘플 카페",
+    "amount": 4500,
+    "transactedAt": "2026-07-21T08:50:00+09:00"
+  },
+  {
+    "categoryCode": "FOOD_DELIVERY",
+    "merchantName": "샘플 카페",
+    "amount": 4500,
+    "transactedAt": "2026-07-22T08:40:00+09:00"
+  },
+  {
+    "categoryCode": "TRANSPORTATION",
+    "merchantName": "샘플 교통카드 충전",
+    "amount": 10000,
+    "transactedAt": "2026-07-23T07:50:00+09:00"
+  },
+  {
+    "categoryCode": "FOOD_DELIVERY",
+    "merchantName": "샘플 카페",
+    "amount": 4500,
+    "transactedAt": "2026-07-23T08:45:00+09:00"
+  },
+  {
+    "categoryCode": "FOOD_DELIVERY",
+    "merchantName": "샘플 카페",
+    "amount": 4500,
+    "transactedAt": "2026-07-24T08:50:00+09:00"
+  },
+  {
+    "categoryCode": "FOOD_DELIVERY",
+    "merchantName": "샘플 배달앱",
+    "amount": 15000,
+    "transactedAt": "2026-07-25T19:10:00+09:00"
+  },
+  {
+    "categoryCode": "SHOPPING",
+    "merchantName": "샘플 온라인몰",
+    "amount": 23000,
+    "transactedAt": "2026-07-26T11:05:00+09:00"
+  },
+  {
+    "categoryCode": "FOOD_DELIVERY",
+    "merchantName": "샘플 배달앱",
+    "amount": 15000,
+    "transactedAt": "2026-07-26T19:17:00+09:00"
+  },
+  {
+    "categoryCode": "FOOD_DELIVERY",
+    "merchantName": "샘플 카페",
+    "amount": 4500,
+    "transactedAt": "2026-07-27T08:40:00+09:00"
+  },
+  {
+    "categoryCode": "FOOD_DELIVERY",
+    "merchantName": "샘플 카페",
+    "amount": 4500,
+    "transactedAt": "2026-07-28T08:45:00+09:00"
+  }
+]
