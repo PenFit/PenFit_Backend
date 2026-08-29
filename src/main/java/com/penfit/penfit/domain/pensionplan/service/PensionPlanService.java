@@ -92,7 +92,7 @@ public class PensionPlanService {
     private void require(boolean condition, String reason) {
         if (!condition) {
             log.warn("연금계획 응답 검증 실패 reason={}", reason);
-            throw new BusinessException(ErrorCode.AI_INVALID_RESPONSE, reason);
+            throw new BusinessException(ErrorCode.AI_INVALID_RESPONSE);
         }
     }
 
