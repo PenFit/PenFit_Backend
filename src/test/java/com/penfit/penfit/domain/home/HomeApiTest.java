@@ -179,6 +179,7 @@ class HomeApiTest {
                 .typeSummary("시장을 믿고 꾸준히 밀고 나가는 성향이에요")
                 .summary("꾸준히 납입을 유지하려는 경향이 있어요.")
                 .judgmentReason("계좌를 해지하기보다 납입액을 조정하는 선택을 우선했어요.")
+                .detailedAnalysisReport("상황별 선택을 종합한 분석이에요.")
                 .aiRawResponse("{}")
                 .modelVersion("passport-model-1.0")
                 .build());

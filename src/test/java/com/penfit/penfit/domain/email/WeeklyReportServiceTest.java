@@ -94,7 +94,7 @@ class WeeklyReportServiceTest {
 
         assertThat(weeklyReportService.sendWeeklyReports()).isEqualTo(1);
 
-        List<EmailSendLog> logs = emailSendLogRepository.findAll();
+        List<EmailSendLog> logs = myLogs();
         assertThat(logs).hasSize(1);
         assertThat(logs.get(0).getStatus()).isEqualTo("SUCCESS");
         assertThat(logs.get(0).getEmail()).isEqualTo("jaewon@email.com");
@@ -120,7 +120,7 @@ class WeeklyReportServiceTest {
         assertThat(html.getValue())
                 .contains("이재원님의 연금생활")
                 .contains("커피값 아껴서 연금 넣어보기")
-                .contains("30,000원")
+                .contains("15,000원")
                 .contains("외식·배달")
                 .contains("이메일 수신을 거부");
     }
@@ -162,7 +162,7 @@ class WeeklyReportServiceTest {
 
         assertThat(weeklyReportService.sendWeeklyReports()).isZero();
         Mockito.verifyNoInteractions(emailSender);
-        assertThat(emailSendLogRepository.findAll()).isEmpty();
+        assertThat(myLogs()).isEmpty();
     }
 
     @Test
@@ -174,7 +174,7 @@ class WeeklyReportServiceTest {
 
         assertThat(weeklyReportService.sendWeeklyReports()).isEqualTo(1);
         assertThat(weeklyReportService.sendWeeklyReports()).isZero();
-        assertThat(emailSendLogRepository.findAll()).hasSize(1);
+        assertThat(myLogs()).hasSize(1);
     }
 
     @Test
@@ -188,7 +188,7 @@ class WeeklyReportServiceTest {
 
         assertThat(weeklyReportService.sendWeeklyReports()).isZero();
 
-        List<EmailSendLog> logs = emailSendLogRepository.findAll();
+        List<EmailSendLog> logs = myLogs();
         assertThat(logs).hasSize(1);
         assertThat(logs.get(0).getStatus()).isEqualTo("FAILED");
         assertThat(logs.get(0).getErrorMessage()).contains("smtp down");
@@ -209,7 +209,7 @@ class WeeklyReportServiceTest {
         assertThat(html.getValue())
                 .contains("지난주 미션 결과")
                 .contains(previous.getTitle())
-                .contains("24,967,759원");
+                .contains("12,483,880원");
     }
 
     @Test
@@ -224,6 +224,12 @@ class WeeklyReportServiceTest {
         ArgumentCaptor<String> html = ArgumentCaptor.forClass(String.class);
         Mockito.verify(emailSender).send(anyString(), anyString(), html.capture());
         assertThat(html.getValue()).doesNotContain("지난주 미션 결과");
+    }
+
+    private List<EmailSendLog> myLogs() {
+        return emailSendLogRepository.findAll().stream()
+                .filter(log -> log.getUserId().equals(userId))
+                .toList();
     }
 
     private void subscribe() throws Exception {
@@ -242,11 +248,11 @@ class WeeklyReportServiceTest {
     private long saveAnalysis() {
         SpendingAnalysis analysis = spendingAnalysisRepository.save(SpendingAnalysis.builder()
                 .userId(userId)
-                .analysisStartDate(LocalDate.of(2026, 7, 1))
-                .analysisEndDate(LocalDate.of(2026, 7, 28))
+                .analysisStartDate(LocalDate.of(2026, 8, 24))
+                .analysisEndDate(LocalDate.of(2026, 8, 30))
                 .topCategoryCode(CategoryCode.FOOD_DELIVERY)
-                .recurringExpense(10_000L)
-                .reducibleAmount(120_000L)
+                .recurringExpense(19_000L)
+                .reducibleAmount(60_000L)
                 .summary("외식·배달 지출 비중이 가장 높아요.")
                 .aiRawResponse("{}")
                 .modelVersion("spending-mission-model-1.0")
@@ -255,8 +261,8 @@ class WeeklyReportServiceTest {
         spendingCategoryAmountRepository.save(SpendingCategoryAmount.builder()
                 .analysisId(analysis.getId())
                 .categoryCode(CategoryCode.FOOD_DELIVERY)
-                .amount(180_000L)
-                .ratio(BigDecimal.valueOf(54.55))
+                .amount(140_000L)
+                .ratio(BigDecimal.valueOf(54.47))
                 .displayOrder(1)
                 .build());
 
@@ -270,14 +276,14 @@ class WeeklyReportServiceTest {
                 .title(title)
                 .description("이번 주 3만원 아껴서 연금계좌 추가 납입")
                 .reason("외식·배달 지출이 가장 큰 비중을 차지해요.")
-                .targetAmount(30_000L)
+                .targetAmount(15_000L)
                 .durationDays(7)
                 .dueDate(ServiceTime.today().plusDays(7))
                 .modelVersion("spending-mission-model-1.0")
                 .build());
 
         if (completed) {
-            mission.complete(24_967_759L);
+            mission.complete(12_483_880L);
             behaviorMissionRepository.saveAndFlush(mission);
         }
         return mission;
