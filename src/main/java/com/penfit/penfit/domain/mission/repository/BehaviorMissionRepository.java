@@ -12,6 +12,8 @@ public interface BehaviorMissionRepository extends JpaRepository<BehaviorMission
 
     Optional<BehaviorMission> findFirstByUserIdOrderByIdDesc(Long userId);
 
+    List<BehaviorMission> findTop2ByUserIdOrderByIdDesc(Long userId);
+
     List<BehaviorMission> findAllByUserIdAndStatusAndCompletedAtBetweenOrderByCompletedAtDesc(
             Long userId, MissionStatus status, OffsetDateTime from, OffsetDateTime to);
 }

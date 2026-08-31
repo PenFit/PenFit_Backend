@@ -1,4 +1,21 @@
 spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 10000
+          writetimeout: 10000
+        debug: false
+
   application:
     name: penfit
   profiles:
@@ -46,6 +63,9 @@ server:
     max-connections: 200
 
 management:
+  health:
+    mail:
+      enabled: false
   endpoints:
     web:
       exposure:
@@ -64,6 +84,12 @@ springdoc:
     operations-sorter: alpha
 
 penfit:
+  mail:
+    from: ${MAIL_USERNAME:}
+    from-name: PenFit
+    enabled: ${MAIL_ENABLED:true}
+    cron: ${MAIL_CRON:0 0 9 * * MON}
+
   pension:
     expected-return-rate: 0.05
     contribution-years: 30
