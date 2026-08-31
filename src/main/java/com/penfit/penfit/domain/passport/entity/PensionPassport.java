@@ -52,6 +52,9 @@ public class PensionPassport {
     @Column(name = "market_risk_level", nullable = false, length = 10)
     private MarketRiskLevel marketRiskLevel;
 
+    @Column(name = "type_summary")
+    private String typeSummary;
+
     @Column(nullable = false)
     private String summary;
 
@@ -71,14 +74,15 @@ public class PensionPassport {
     @Builder
     private PensionPassport(Long userId, Long rehearsalId, PassportTypeCode typeCode,
                             Long sustainableMonthlyContribution, ScenarioCode biggestInterruptionRiskCode,
-                            MarketRiskLevel marketRiskLevel, String summary, String judgmentReason,
-                            String aiRawResponse, String modelVersion) {
+                            MarketRiskLevel marketRiskLevel, String typeSummary, String summary,
+                            String judgmentReason, String aiRawResponse, String modelVersion) {
         this.userId = userId;
         this.rehearsalId = rehearsalId;
         this.typeCode = typeCode;
         this.sustainableMonthlyContribution = sustainableMonthlyContribution;
         this.biggestInterruptionRiskCode = biggestInterruptionRiskCode;
         this.marketRiskLevel = marketRiskLevel;
+        this.typeSummary = typeSummary;
         this.summary = summary;
         this.judgmentReason = judgmentReason;
         this.aiRawResponse = aiRawResponse;

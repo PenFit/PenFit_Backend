@@ -65,6 +65,7 @@ public class PassportAnalysisService {
                 "sustainableMonthlyContribution 은 0 이상이어야 한다");
         require(hasText(response.analysisSummary()), "analysisSummary 가 비어 있다");
         require(hasText(response.judgmentReason()), "judgmentReason 이 비어 있다");
+        require(hasText(response.typeSummary()), "typeSummary 가 비어 있다");
         require(hasText(response.modelVersion()), "modelVersion 이 비어 있다");
         require(isEnum(PassportTypeCode.class, response.typeCode()),
                 "알 수 없는 typeCode: " + response.typeCode());
