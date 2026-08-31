@@ -61,8 +61,6 @@ class Handler(BaseHTTPRequestHandler):
             return
 
         response = fixtures[key]
-        if key == "pensionPassportAnalyze":
-            response = reflect_answers(response, body)
         if key == "productRecommendationsGenerate":
             response = reflect_candidates(response, body)
 
@@ -107,24 +105,6 @@ def reflect_candidates(response, body):
     reflected["recommendations"] = [
         {**item, "productId": candidates[index]["productId"]}
         for index, item in enumerate(response["recommendations"])
-    ]
-    return reflected
-
-
-def reflect_answers(response, body):
-    try:
-        answers = json.loads(body).get("rehearsalAnswers") or []
-    except json.JSONDecodeError:
-        return response
-    if not answers:
-        return response
-
-    templates = {item["scenarioCode"]: item for item in response["detailedAnalysis"]}
-    reflected = dict(response)
-    reflected["detailedAnalysis"] = [
-        {**templates[answer["scenarioCode"]], "selectedOptionCode": answer["optionCode"]}
-        for answer in answers
-        if answer["scenarioCode"] in templates
     ]
     return reflected
 

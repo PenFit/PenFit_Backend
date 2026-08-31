@@ -56,8 +56,8 @@ class BehaviorMissionApiTest {
     private static final String SETUP_URL = "/api/v1/users/me/pension-setup";
     private static final String START_URL = "/api/v1/users/me/rehearsals";
 
-    private static final long TOTAL_SPENDING = 330_000L;
-    private static final long PENSION_IMPACT = 24_967_759L;
+    private static final long TOTAL_SPENDING = 257_000L;
+    private static final long PENSION_IMPACT = 12_483_880L;
 
     private static final String PROFILE_BODY = """
             {
@@ -110,16 +110,16 @@ class BehaviorMissionApiTest {
                 .andExpect(jsonPath("$.data.topCategory.code").value("FOOD_DELIVERY"))
                 .andExpect(jsonPath("$.data.topCategory.displayName").value("외식·배달"))
                 .andExpect(jsonPath("$.data.totalAmount").value(TOTAL_SPENDING))
-                .andExpect(jsonPath("$.data.recurringExpense").value(10000))
-                .andExpect(jsonPath("$.data.reducibleAmount").value(120000))
+                .andExpect(jsonPath("$.data.recurringExpense").value(19000))
+                .andExpect(jsonPath("$.data.reducibleAmount").value(60000))
                 .andExpect(jsonPath("$.data.categorySpending.length()").value(5))
                 .andExpect(jsonPath("$.data.categorySpending[0].category.code").value("FOOD_DELIVERY"))
-                .andExpect(jsonPath("$.data.categorySpending[0].amount").value(180000))
+                .andExpect(jsonPath("$.data.categorySpending[0].amount").value(140000))
                 .andExpect(jsonPath("$.data.categorySpending[4].category.code").value("OTHER"))
-                .andExpect(jsonPath("$.data.categorySpending[4].amount").value(0))
+                .andExpect(jsonPath("$.data.categorySpending[4].amount").value(15000))
                 .andExpect(jsonPath("$.data.keyInsights.length()").value(3))
-                .andExpect(jsonPath("$.data.analysisStartDate").value("2026-07-01"))
-                .andExpect(jsonPath("$.data.analysisEndDate").value("2026-07-28"));
+                .andExpect(jsonPath("$.data.analysisStartDate").value("2026-08-24"))
+                .andExpect(jsonPath("$.data.analysisEndDate").value("2026-08-30"));
     }
 
     @Test
@@ -141,13 +141,13 @@ class BehaviorMissionApiTest {
         mockMvc.perform(get(CURRENT_URL).header(HttpHeaders.AUTHORIZATION, bearer(accessToken)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.title").value("커피값 아껴서 연금 넣어보기"))
-                .andExpect(jsonPath("$.data.targetAmount").value(30000))
+                .andExpect(jsonPath("$.data.targetAmount").value(15000))
                 .andExpect(jsonPath("$.data.durationDays").value(7))
                 .andExpect(jsonPath("$.data.daysLeft").value(7))
                 .andExpect(jsonPath("$.data.dueDate").value(LocalDate.now().plusDays(7).toString()))
                 .andExpect(jsonPath("$.data.status.code").value("PENDING"))
                 .andExpect(jsonPath("$.data.topCategory.code").value("FOOD_DELIVERY"))
-                .andExpect(jsonPath("$.data.topCategoryRatio").value(54.55));
+                .andExpect(jsonPath("$.data.topCategoryRatio").value(54.47));
     }
 
     @Test
@@ -188,7 +188,7 @@ class BehaviorMissionApiTest {
                         .header(HttpHeaders.AUTHORIZATION, bearer(accessToken)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.completedCount").value(1))
-                .andExpect(jsonPath("$.data.totalSavedAmount").value(30000))
+                .andExpect(jsonPath("$.data.totalSavedAmount").value(15000))
                 .andExpect(jsonPath("$.data.totalPensionImpactAmount").value(PENSION_IMPACT))
                 .andExpect(jsonPath("$.data.completions[0].title").value("커피값 아껴서 연금 넣어보기"))
                 .andExpect(jsonPath("$.data.completions[0].completedDate")
@@ -381,6 +381,7 @@ class BehaviorMissionApiTest {
                 .marketRiskLevel(MarketRiskLevel.MEDIUM)
                 .summary("꾸준히 납입을 유지하려는 경향이 있어요.")
                 .judgmentReason("계좌를 해지하기보다 납입액을 조정하는 선택을 우선했어요.")
+                .detailedAnalysisReport("상황별 선택을 종합한 분석이에요.")
                 .aiRawResponse("{}")
                 .modelVersion("passport-model-1.0")
                 .build());

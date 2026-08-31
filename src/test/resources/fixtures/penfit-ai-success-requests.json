@@ -93,5 +93,28 @@
       }
     ],
     "recommendationCount": 3
+  },
+  "spendingMissionAnalyze": {
+    "userId": 1,
+    "weekStartDate": "2026-08-24",
+    "weekEndDate": "2026-08-30",
+    "transactions": [
+      {
+        "transactionId": 1,
+        "transactionDate": "2026-08-24T08:10:00+09:00",
+        "type": "EXPENSE",
+        "category": "FOOD_DELIVERY",
+        "merchantName": "스타벅스",
+        "amount": 6500
+      },
+      {
+        "transactionId": 10,
+        "transactionDate": "2026-08-27T18:30:00+09:00",
+        "type": "EXPENSE",
+        "category": "SHOPPING",
+        "merchantName": "올리브영",
+        "amount": 32000
+      }
+    ]
   }
 }

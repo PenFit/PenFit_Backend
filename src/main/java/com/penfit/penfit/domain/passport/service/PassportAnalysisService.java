@@ -14,15 +14,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.EnumSet;
-import java.util.Set;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class PassportAnalysisService {
-
-    private static final int REQUIRED_ANALYSIS_COUNT = 6;
 
     private final AiClient aiClient;
     private final PassportAnalysisStore passportAnalysisStore;
@@ -37,7 +33,7 @@ public class PassportAnalysisService {
         try {
             PassportAnalyzeResponse response = aiClient.call(
                     AiApi.PASSPORT, context.request(), PassportAnalyzeResponse.class, context.userId());
-            validate(response, context);
+            validate(response);
             passportAnalysisStore.savePassport(context, response, toJson(response));
 
         } catch (BusinessException e) {
@@ -56,42 +52,21 @@ public class PassportAnalysisService {
         passportAnalysisStore.markFailed(rehearsalId, errorCode.getCode(), message);
     }
 
-    private void validate(PassportAnalyzeResponse response, AnalysisContext context) {
-        require(response.detailedAnalysis() != null
-                        && response.detailedAnalysis().size() == REQUIRED_ANALYSIS_COUNT,
-                "detailedAnalysis 는 %d개여야 한다".formatted(REQUIRED_ANALYSIS_COUNT));
+    private void validate(PassportAnalyzeResponse response) {
         require(response.sustainableMonthlyContribution() != null
                         && response.sustainableMonthlyContribution() >= 0,
                 "sustainableMonthlyContribution 은 0 이상이어야 한다");
         require(hasText(response.analysisSummary()), "analysisSummary 가 비어 있다");
         require(hasText(response.judgmentReason()), "judgmentReason 이 비어 있다");
-        require(hasText(response.typeSummary()), "typeSummary 가 비어 있다");
+        require(hasText(response.detailedAnalysisReport()), "detailedAnalysisReport 가 비어 있다");
         require(hasText(response.modelVersion()), "modelVersion 이 비어 있다");
         require(isEnum(PassportTypeCode.class, response.typeCode()),
                 "알 수 없는 typeCode: " + response.typeCode());
         require(response.marketRiskLevel() != null
                         && isEnum(MarketRiskLevel.class, response.marketRiskLevel().code()),
                 "알 수 없는 marketRiskLevel");
-        require(response.biggestInterruptionRisk() != null
-                        && isEnum(ScenarioCode.class, response.biggestInterruptionRisk().scenarioCode()),
-                "알 수 없는 biggestInterruptionRisk");
-
-        Set<ScenarioCode> seen = EnumSet.noneOf(ScenarioCode.class);
-        for (PassportAnalyzeResponse.DetailedAnalysis analysis : response.detailedAnalysis()) {
-            require(isEnum(ScenarioCode.class, analysis.scenarioCode()),
-                    "알 수 없는 scenarioCode: " + analysis.scenarioCode());
-            ScenarioCode scenarioCode = ScenarioCode.valueOf(analysis.scenarioCode());
-            require(seen.add(scenarioCode), "scenarioCode 가 중복됐다: " + scenarioCode);
-            require(hasText(analysis.behaviorSummary()), "behaviorSummary 가 비어 있다: " + scenarioCode);
-            require(hasText(analysis.interpretation()), "interpretation 이 비어 있다: " + scenarioCode);
-            require(context.answers().containsKey(scenarioCode),
-                    "사용자가 답변하지 않은 상황이다: " + scenarioCode);
-            require(context.answers().get(scenarioCode).name().equals(analysis.selectedOptionCode()),
-                    "선택지가 저장된 답변과 다르다: %s 저장 %s, 응답 %s".formatted(
-                            scenarioCode, context.answers().get(scenarioCode), analysis.selectedOptionCode()));
-        }
-        require(seen.size() == REQUIRED_ANALYSIS_COUNT,
-                "6개 상황이 모두 있어야 한다");
+        require(isEnum(ScenarioCode.class, response.biggestInterruptionRisk()),
+                "알 수 없는 biggestInterruptionRisk: " + response.biggestInterruptionRisk());
     }
 
     private void require(boolean condition, String reason) {

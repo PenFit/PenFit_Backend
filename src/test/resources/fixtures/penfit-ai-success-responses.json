@@ -2,62 +2,15 @@
   "pensionPassportAnalyze": {
     "typeCode": "STEADY_PIONEER",
     "typeName": "성실한 개척자형",
-    "typeSummary": "시장을 믿고 꾸준히 밀고 가는 성향이에요.",
     "sustainableMonthlyContribution": 120000,
-    "biggestInterruptionRisk": {
-      "scenarioCode": "HOME_PURCHASE",
-      "displayName": "주택 구매"
-    },
+    "biggestInterruptionRisk": "HOME_PURCHASE",
     "marketRiskLevel": {
       "code": "MEDIUM",
       "displayName": "중간"
     },
     "analysisSummary": "6가지 상황에서도 꾸준히 납입을 유지하려는 경향이 있어요.",
-    "judgmentReason": "소득이 줄어드는 상황에서도 계좌를 해지하기보다 납입액을 조정하는 선택을 우선했어요.",
-    "detailedAnalysis": [
-      {
-        "scenarioCode": "JOB_CHANGE",
-        "scenarioName": "이직",
-        "selectedOptionCode": "KEEP",
-        "behaviorSummary": "소득 공백에도 기존 납입을 유지하려는 성향이에요.",
-        "interpretation": "비상금을 활용해 연금 흐름을 끊지 않는 선택을 했어요."
-      },
-      {
-        "scenarioCode": "INDEPENDENCE",
-        "scenarioName": "독립",
-        "selectedOptionCode": "CUT_EXPENSE_AND_KEEP",
-        "behaviorSummary": "생활비가 늘어도 기존 납입을 유지하려는 성향이에요.",
-        "interpretation": "지출 증가보다 장기 적립을 우선하는 선택을 했어요."
-      },
-      {
-        "scenarioCode": "MARRIAGE",
-        "scenarioName": "결혼",
-        "selectedOptionCode": "REDUCE_EVENT_COST_AND_KEEP",
-        "behaviorSummary": "큰 지출을 앞두고도 납입을 유지하려는 성향이에요.",
-        "interpretation": "행사 비용을 조정해 연금 납입을 지키는 선택을 했어요."
-      },
-      {
-        "scenarioCode": "HOME_PURCHASE",
-        "scenarioName": "주택 구매",
-        "selectedOptionCode": "DELAY_EVENT",
-        "behaviorSummary": "주택 구매를 미루더라도 납입을 지키려는 성향이에요.",
-        "interpretation": "목표 시기를 조정해 연금 흐름을 유지하는 선택을 했어요."
-      },
-      {
-        "scenarioCode": "CHILDBIRTH",
-        "scenarioName": "출산",
-        "selectedOptionCode": "KEEP",
-        "behaviorSummary": "소득이 줄어도 기존 납입을 유지하려는 성향이에요.",
-        "interpretation": "육아 부담에도 연금 납입을 그대로 이어가는 선택을 했어요."
-      },
-      {
-        "scenarioCode": "MARKET_DOWNTURN",
-        "scenarioName": "시장 하락",
-        "selectedOptionCode": "REBALANCE",
-        "behaviorSummary": "하락장에서 계획대로 비중을 조정하려는 성향이에요.",
-        "interpretation": "감정적으로 정리하기보다 원래 계획을 지키는 선택을 했어요."
-      }
-    ],
+    "detailedAnalysisReport": "소득이 줄어드는 상황에서는 납입액을 조정했지만 계좌 해지보다 유지를 우선했고, 시장 하락에서도 장기투자 계획을 지키는 선택을 했어요. 큰 지출을 앞둔 상황에서는 시기를 조정해 납입 흐름을 끊지 않으려는 모습이 반복해서 나타났어요.",
+    "judgmentReason": "계좌를 해지하기보다 납입액을 조정하는 선택을 우선했어요.",
     "modelVersion": "passport-model-1.0"
   },
   "pensionPlanGenerate": {
@@ -105,43 +58,48 @@
   "spendingMissionAnalyze": {
     "spendingAnalysis": {
       "topCategoryCode": "FOOD_DELIVERY",
-      "recurringExpense": 10000,
-      "reducibleAmount": 120000,
+      "recurringExpense": 19000,
+      "reducibleAmount": 60000,
       "categorySpending": [
         {
           "categoryCode": "FOOD_DELIVERY",
-          "amount": 180000,
-          "ratio": 54.55
+          "amount": 140000,
+          "ratio": 54.47
         },
         {
           "categoryCode": "SHOPPING",
-          "amount": 100000,
-          "ratio": 30.3
+          "amount": 55000,
+          "ratio": 21.4
         },
         {
           "categoryCode": "TRANSPORTATION",
-          "amount": 40000,
-          "ratio": 12.12
+          "amount": 28000,
+          "ratio": 10.89
         },
         {
           "categoryCode": "SUBSCRIPTION",
-          "amount": 10000,
-          "ratio": 3.03
+          "amount": 19000,
+          "ratio": 7.39
+        },
+        {
+          "categoryCode": "OTHER",
+          "amount": 15000,
+          "ratio": 5.85
         }
       ],
       "keyInsights": [
-        "외식·배달 지출이 전체 소비의 약 55%로 가장 큰 비중을 차지해요.",
-        "월간 구독 서비스에 1만원을 반복해서 지출하고 있어요.",
-        "현재 소비에서 월 약 12만원을 줄일 여지가 있어요."
+        "외식·배달 지출이 이번 주 소비의 약 54%로 가장 큰 비중을 차지해요.",
+        "구독 서비스에 매주 1만 9천원이 반복해서 나가고 있어요.",
+        "이번 주 소비에서 약 6만원을 줄일 여지가 있어요."
       ],
-      "summary": "외식·배달 지출 비중이 가장 높고 매월 반복되는 구독 지출도 확인됐어요."
+      "summary": "외식·배달 지출 비중이 가장 높고 반복되는 구독 지출도 확인됐어요."
     },
     "mission": {
       "title": "커피값 아껴서 연금 넣어보기",
-      "description": "이번 주 외식·배달비를 줄여 3만원을 확보해보세요.",
-      "targetAmount": 30000,
+      "description": "이번 주 외식·배달비를 줄여 1만 5천원을 확보해보세요.",
+      "targetAmount": 15000,
       "durationDays": 7,
-      "reason": "외식·배달 지출이 전체 소비의 약 55%를 차지해 가장 실천 가능한 절감 영역으로 판단했어요."
+      "reason": "외식·배달 지출이 이번 주 소비의 약 54%를 차지해 가장 실천 가능한 절감 영역으로 판단했어요."
     },
     "modelVersion": "spending-mission-model-1.0"
   }
