@@ -14,7 +14,6 @@ import com.penfit.penfit.domain.mission.repository.SpendingCategoryAmountReposit
 import com.penfit.penfit.domain.mission.repository.SpendingKeyInsightRepository;
 import com.penfit.penfit.domain.mission.repository.VirtualTransactionRepository;
 import com.penfit.penfit.domain.mission.entity.SpendingKeyInsight;
-import com.penfit.penfit.domain.pensionplan.entity.PensionPlan;
 import com.penfit.penfit.domain.pensionplan.repository.PensionPlanRepository;
 import com.penfit.penfit.global.calculator.PensionAssetCalculator;
 import com.penfit.penfit.global.client.ai.dto.SpendingMissionAnalyzeRequest;
@@ -45,7 +44,7 @@ import java.util.stream.IntStream;
 @RequiredArgsConstructor
 public class SpendingMissionStore {
 
-    private static final int MISSION_DURATION_DAYS = 7;
+    private static final int ANALYSIS_DAYS = 7;
 
     private final VirtualTransactionRepository virtualTransactionRepository;
     private final SpendingAnalysisRepository spendingAnalysisRepository;
@@ -61,16 +60,28 @@ public class SpendingMissionStore {
 
     @Transactional(readOnly = true)
     public AnalysisContext loadContext(Long userId) {
-        PensionPlan plan = pensionPlanRepository.findByUserId(userId)
+        pensionPlanRepository.findByUserId(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.PENSION_PLAN_NOT_FOUND));
 
-        List<VirtualTransaction> transactions = virtualTransactionRepository.findAllByOrderByTransactedAtAsc();
-        if (transactions.isEmpty()) {
+        List<VirtualTransaction> recent = recentTransactions();
+        if (recent.isEmpty()) {
             throw new BusinessException(ErrorCode.NO_ACTIONABLE_SPENDING);
         }
 
-        return new AnalysisContext(userId,
-                SpendingMissionAnalyzeRequest.of(transactions, plan, MISSION_DURATION_DAYS));
+        return new AnalysisContext(userId, SpendingMissionAnalyzeRequest.of(userId, recent));
+    }
+
+    private List<VirtualTransaction> recentTransactions() {
+        List<VirtualTransaction> all = virtualTransactionRepository.findAllByOrderByTransactedAtAsc();
+        if (all.isEmpty()) {
+            return all;
+        }
+
+        LocalDate lastDate = ServiceTime.toLocalDate(all.get(all.size() - 1).getTransactedAt());
+        LocalDate from = lastDate.minusDays(ANALYSIS_DAYS - 1L);
+        return all.stream()
+                .filter(transaction -> !ServiceTime.toLocalDate(transaction.getTransactedAt()).isBefore(from))
+                .toList();
     }
 
     @Transactional
@@ -80,8 +91,8 @@ public class SpendingMissionStore {
 
         SpendingAnalysis analysis = spendingAnalysisRepository.save(SpendingAnalysis.builder()
                 .userId(context.userId())
-                .analysisStartDate(context.request().analysisPeriod().startDate())
-                .analysisEndDate(context.request().analysisPeriod().endDate())
+                .analysisStartDate(context.request().weekStartDate())
+                .analysisEndDate(context.request().weekEndDate())
                 .topCategoryCode(CategoryCode.valueOf(payload.topCategoryCode()))
                 .recurringExpense(payload.recurringExpense())
                 .reducibleAmount(payload.reducibleAmount())

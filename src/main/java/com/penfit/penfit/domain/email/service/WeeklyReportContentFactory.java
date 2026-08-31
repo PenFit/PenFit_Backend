@@ -114,7 +114,7 @@ public class WeeklyReportContentFactory {
                 <div style="border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:16px;">
                   <p style="margin:0 0 4px;color:#1d4ed8;font-weight:bold;">소비 분석</p>
                   <p style="margin:0 0 8px;color:#0f172a;">가장 큰 소비 영역은 %s이고 전체의 %s%%예요.</p>
-                  <p style="margin:0;color:#475569;">지금 소비에서 월 %s원을 줄일 여지가 있어요.</p>
+                  <p style="margin:0;color:#475569;">이번 주 소비에서 %s원을 줄일 여지가 있어요.</p>
                 </div>
                 """.formatted(
                 escape(analysis.getTopCategoryCode().getDisplayName()),

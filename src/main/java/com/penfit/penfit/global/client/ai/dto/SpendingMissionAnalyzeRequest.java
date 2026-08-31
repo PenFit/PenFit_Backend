@@ -1,7 +1,6 @@
 package com.penfit.penfit.global.client.ai.dto;
 
 import com.penfit.penfit.domain.mission.entity.VirtualTransaction;
-import com.penfit.penfit.domain.pensionplan.entity.PensionPlan;
 import com.penfit.penfit.global.common.ServiceTime;
 
 import java.time.LocalDate;
@@ -9,45 +8,43 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 public record SpendingMissionAnalyzeRequest(
-        AnalysisPeriod analysisPeriod,
-        List<TransactionPayload> transactions,
-        PensionPlanPayload pensionPlan,
-        MissionCondition missionCondition
+        Long userId,
+        LocalDate weekStartDate,
+        LocalDate weekEndDate,
+        List<TransactionPayload> transactions
 ) {
 
-    public record AnalysisPeriod(LocalDate startDate, LocalDate endDate) {
-    }
+    private static final String EXPENSE = "EXPENSE";
 
     public record TransactionPayload(
-            String categoryCode,
+            Long transactionId,
+            OffsetDateTime transactionDate,
+            String type,
+            String category,
             String merchantName,
-            Long amount,
-            OffsetDateTime transactedAt
+            Long amount
     ) {
+
+        public static TransactionPayload from(VirtualTransaction transaction) {
+            return new TransactionPayload(
+                    transaction.getId(),
+                    transaction.getTransactedAt(),
+                    EXPENSE,
+                    transaction.getCategoryCode().name(),
+                    transaction.getMerchantName(),
+                    transaction.getAmount());
+        }
     }
 
-    public record PensionPlanPayload(Long monthlyContribution, String accountType) {
-    }
-
-    public record MissionCondition(int durationDays) {
-    }
-
-    public static SpendingMissionAnalyzeRequest of(List<VirtualTransaction> transactions,
-                                                   PensionPlan plan, int durationDays) {
+    public static SpendingMissionAnalyzeRequest of(Long userId, List<VirtualTransaction> transactions) {
         LocalDate startDate = ServiceTime.toLocalDate(transactions.get(0).getTransactedAt());
         LocalDate endDate = ServiceTime.toLocalDate(
                 transactions.get(transactions.size() - 1).getTransactedAt());
 
         return new SpendingMissionAnalyzeRequest(
-                new AnalysisPeriod(startDate, endDate),
-                transactions.stream()
-                        .map(transaction -> new TransactionPayload(
-                                transaction.getCategoryCode().name(),
-                                transaction.getMerchantName(),
-                                transaction.getAmount(),
-                                transaction.getTransactedAt()))
-                        .toList(),
-                new PensionPlanPayload(plan.getMonthlyContribution(), plan.getAccountType().name()),
-                new MissionCondition(durationDays));
+                userId,
+                startDate,
+                endDate,
+                transactions.stream().map(TransactionPayload::from).toList());
     }
 }
