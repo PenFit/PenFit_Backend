@@ -7,10 +7,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum PassportTypeCode implements DisplayNamed {
 
-    STEADY_PIONEER("성실한 개척자형", "생애 변화와 시장 하락에도 납입을 유지하거나 늘리려는 경향"),
-    FLEXIBLE_BALANCER("유연한 균형형", "계좌는 유지하면서 상황에 따라 납입액을 감액·일시중단하는 경향"),
-    CAUTIOUS_GUARDIAN("신중한 수호자형", "계좌 유지와 함께 리밸런싱·안전자산 확대를 선호하는 경향"),
-    REALISTIC_PLANNER("현실적인 설계자형", "단기 생애목표와 현금흐름을 우선하며 중단·재설계를 선택하는 경향");
+    STEADY_PIONEER("성실한 개척자형", "연금 납입을 비교적 꾸준히 유지하는 유형"),
+    FLEXIBLE_MAINTAINER("유연한 유지형", "상황에 맞게 납입액을 조절하면서 연금을 유지하는 유형"),
+    CASHFLOW_GUARDIAN("현금흐름 방어형", "현재 생활비·현금흐름을 우선적으로 보호하는 유형"),
+    MARKET_SENSITIVE("시장 반응형", "시장 변동에 따라 연금 행동이 영향을 받는 유형"),
+    LONG_TERM_KEEPER("장기 유지형", "장기적인 연금 유지를 중요하게 보는 유형");
 
     private final String displayName;
     private final String description;

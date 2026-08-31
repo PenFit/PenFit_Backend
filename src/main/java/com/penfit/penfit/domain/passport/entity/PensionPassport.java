@@ -61,6 +61,9 @@ public class PensionPassport {
     @Column(name = "judgment_reason", nullable = false)
     private String judgmentReason;
 
+    @Column(name = "detailed_analysis_report")
+    private String detailedAnalysisReport;
+
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "ai_raw_response", nullable = false)
     private String aiRawResponse;
@@ -75,7 +78,8 @@ public class PensionPassport {
     private PensionPassport(Long userId, Long rehearsalId, PassportTypeCode typeCode,
                             Long sustainableMonthlyContribution, ScenarioCode biggestInterruptionRiskCode,
                             MarketRiskLevel marketRiskLevel, String typeSummary, String summary,
-                            String judgmentReason, String aiRawResponse, String modelVersion) {
+                            String judgmentReason, String detailedAnalysisReport,
+                            String aiRawResponse, String modelVersion) {
         this.userId = userId;
         this.rehearsalId = rehearsalId;
         this.typeCode = typeCode;
@@ -85,6 +89,7 @@ public class PensionPassport {
         this.typeSummary = typeSummary;
         this.summary = summary;
         this.judgmentReason = judgmentReason;
+        this.detailedAnalysisReport = detailedAnalysisReport;
         this.aiRawResponse = aiRawResponse;
         this.modelVersion = modelVersion;
     }
