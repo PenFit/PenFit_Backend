@@ -93,6 +93,7 @@ public class PassportAnalysisStore {
                 .sustainableMonthlyContribution(response.sustainableMonthlyContribution())
                 .biggestInterruptionRiskCode(ScenarioCode.valueOf(response.biggestInterruptionRisk().scenarioCode()))
                 .marketRiskLevel(MarketRiskLevel.valueOf(response.marketRiskLevel().code()))
+                .typeSummary(response.typeSummary())
                 .summary(response.analysisSummary())
                 .judgmentReason(response.judgmentReason())
                 .aiRawResponse(rawResponse)
