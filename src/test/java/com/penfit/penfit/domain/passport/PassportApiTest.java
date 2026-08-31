@@ -24,8 +24,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -126,9 +124,8 @@ class PassportApiTest {
                 .andExpect(jsonPath("$.data.biggestInterruptionRisk.code").value("HOME_PURCHASE"))
                 .andExpect(jsonPath("$.data.biggestInterruptionRisk.displayName").value("주택 구매"))
                 .andExpect(jsonPath("$.data.marketRiskLevel.displayName").value("중간"))
-                .andExpect(jsonPath("$.data.detailedAnalysis.length()").value(6))
-                .andExpect(jsonPath("$.data.detailedAnalysis[0].scenario.code").value("JOB_CHANGE"))
-                .andExpect(jsonPath("$.data.detailedAnalysis[0].selectedOptionCode").value("KEEP"));
+                .andExpect(jsonPath("$.data.typeSummary").value("연금 납입을 비교적 꾸준히 유지하는 유형"))
+                .andExpect(jsonPath("$.data.detailedAnalysisReport").exists());
 
         mockMvc.perform(get(rehearsalUrl(rehearsalId)).header(HttpHeaders.AUTHORIZATION, bearer(accessToken)))
                 .andExpect(status().isOk())
@@ -171,14 +168,11 @@ class PassportApiTest {
     }
 
     @Test
-    @DisplayName("세부 분석이 6개가 아니면 패스포트를 저장하지 않는다")
+    @DisplayName("세부 분석 리포트가 비어 있으면 패스포트를 저장하지 않는다")
     void rejectsIncompleteAnalysis() throws Exception {
         long rehearsalId = analyzingRehearsal();
-        PassportAnalyzeResponse response = successResponse();
-        List<PassportAnalyzeResponse.DetailedAnalysis> partial =
-                new ArrayList<>(response.detailedAnalysis()).subList(0, 5);
         given(aiClient.call(eq(AiApi.PASSPORT), any(), eq(PassportAnalyzeResponse.class), anyLong()))
-                .willReturn(withAnalyses(response, partial));
+                .willReturn(withReport(successResponse(), "  "));
 
         passportAnalysisService.analyze(rehearsalId);
 
@@ -286,19 +280,18 @@ class PassportApiTest {
                 PassportAnalyzeResponse.class);
     }
 
-    private PassportAnalyzeResponse withAnalyses(PassportAnalyzeResponse source,
-                                                 List<PassportAnalyzeResponse.DetailedAnalysis> analyses) {
-        return new PassportAnalyzeResponse(source.typeCode(), source.typeName(), source.typeSummary(),
+    private PassportAnalyzeResponse withReport(PassportAnalyzeResponse source, String report) {
+        return new PassportAnalyzeResponse(source.typeCode(), source.typeName(),
                 source.sustainableMonthlyContribution(), source.biggestInterruptionRisk(),
-                source.marketRiskLevel(), source.analysisSummary(), source.judgmentReason(),
-                analyses, source.modelVersion());
+                source.marketRiskLevel(), source.analysisSummary(), report,
+                source.judgmentReason(), source.modelVersion());
     }
 
     private PassportAnalyzeResponse withSustainable(PassportAnalyzeResponse source, Long sustainable) {
-        return new PassportAnalyzeResponse(source.typeCode(), source.typeName(), source.typeSummary(),
+        return new PassportAnalyzeResponse(source.typeCode(), source.typeName(),
                 sustainable, source.biggestInterruptionRisk(), source.marketRiskLevel(),
-                source.analysisSummary(), source.judgmentReason(),
-                source.detailedAnalysis(), source.modelVersion());
+                source.analysisSummary(), source.detailedAnalysisReport(),
+                source.judgmentReason(), source.modelVersion());
     }
 
     private long analyzingRehearsal() throws Exception {
