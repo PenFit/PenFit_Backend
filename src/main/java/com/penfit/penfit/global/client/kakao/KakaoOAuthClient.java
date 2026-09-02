@@ -23,9 +23,11 @@ public class KakaoOAuthClient {
 
     private final RestClient restClient;
     private final KakaoProperties properties;
+    private final KakaoRedirectUriResolver redirectUriResolver;
 
-    public KakaoOAuthClient(KakaoProperties properties) {
+    public KakaoOAuthClient(KakaoProperties properties, KakaoRedirectUriResolver redirectUriResolver) {
         this.properties = properties;
+        this.redirectUriResolver = redirectUriResolver;
 
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
         factory.setConnectTimeout((int) properties.connectTimeout().toMillis());
@@ -36,8 +38,8 @@ public class KakaoOAuthClient {
                 .build();
     }
 
-    public KakaoUserInfo fetchUserInfo(String authorizationCode) {
-        String kakaoAccessToken = requestAccessToken(authorizationCode);
+    public KakaoUserInfo fetchUserInfo(String authorizationCode, String origin) {
+        String kakaoAccessToken = requestAccessToken(authorizationCode, redirectUriResolver.resolve(origin));
         KakaoUserResponse user = requestUserInfo(kakaoAccessToken);
 
         if (user == null || user.id() == null) {
@@ -50,12 +52,12 @@ public class KakaoOAuthClient {
                 (nickname == null || nickname.isBlank()) ? DEFAULT_NICKNAME : nickname);
     }
 
-    private String requestAccessToken(String authorizationCode) {
+    private String requestAccessToken(String authorizationCode, String redirectUri) {
         MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
         form.add("grant_type", "authorization_code");
         form.add("client_id", properties.clientId());
         form.add("client_secret", properties.clientSecret());
-        form.add("redirect_uri", properties.redirectUri());
+        form.add("redirect_uri", redirectUri);
         form.add("code", authorizationCode);
 
         KakaoTokenResponse response = execute(() -> restClient.post()

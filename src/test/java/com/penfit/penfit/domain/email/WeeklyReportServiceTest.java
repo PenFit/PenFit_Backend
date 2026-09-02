@@ -34,6 +34,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -295,7 +296,7 @@ class WeeklyReportServiceTest {
     }
 
     private String loginAs(String kakaoId, String nickname) throws Exception {
-        given(kakaoOAuthClient.fetchUserInfo(anyString()))
+        given(kakaoOAuthClient.fetchUserInfo(anyString(), any()))
                 .willReturn(new KakaoUserInfo(kakaoId, nickname));
 
         String body = mockMvc.perform(post("/api/v1/auth/kakao/login")

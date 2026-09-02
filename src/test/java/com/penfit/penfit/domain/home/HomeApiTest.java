@@ -33,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -264,7 +265,7 @@ class HomeApiTest {
     }
 
     private String loginAs(String kakaoId, String nickname) throws Exception {
-        given(kakaoOAuthClient.fetchUserInfo(anyString()))
+        given(kakaoOAuthClient.fetchUserInfo(anyString(), any()))
                 .willReturn(new KakaoUserInfo(kakaoId, nickname));
 
         String body = mockMvc.perform(post("/api/v1/auth/kakao/login")
