@@ -13,21 +13,26 @@ import com.penfit.penfit.global.client.kakao.KakaoOAuthClient;
 import com.penfit.penfit.global.client.kakao.KakaoUserInfo;
 import com.penfit.penfit.global.error.BusinessException;
 import com.penfit.penfit.global.error.ErrorCode;
+import com.penfit.penfit.global.config.DemoProperties;
 import com.penfit.penfit.global.security.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
+    private static final String DEMO_KAKAO_ID_PREFIX = "demo-";
+
     private final KakaoOAuthClient kakaoOAuthClient;
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtProvider jwtProvider;
+    private final DemoProperties demoProperties;
 
     @Transactional
     public LoginResult login(String authorizationCode) {
@@ -43,6 +48,22 @@ public class AuthService {
         TokenBundle tokens = issueTokens(user.getId());
         LoginResponse response = new LoginResponse(
                 tokens.accessToken(), user.getId(), user.getNickname(), newUser);
+
+        return new LoginResult(response, tokens);
+    }
+
+    @Transactional
+    public LoginResult demoLogin() {
+        if (!demoProperties.enabled()) {
+            throw new BusinessException(ErrorCode.NOT_FOUND);
+        }
+
+        User user = userRepository.save(User.demo(
+                DEMO_KAKAO_ID_PREFIX + UUID.randomUUID(), demoProperties.nickname()));
+
+        TokenBundle tokens = issueTokens(user.getId());
+        LoginResponse response = new LoginResponse(
+                tokens.accessToken(), user.getId(), user.getNickname(), true);
 
         return new LoginResult(response, tokens);
     }
