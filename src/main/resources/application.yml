@@ -84,6 +84,10 @@ springdoc:
     operations-sorter: alpha
 
 penfit:
+  demo:
+    enabled: ${DEMO_LOGIN_ENABLED:true}
+    nickname: 체험하는 심사위원
+
   mail:
     from: ${MAIL_USERNAME:}
     from-name: PenFit
@@ -121,10 +125,10 @@ penfit:
     api-key: ${AI_INTERNAL_API_KEY}
     connect-timeout: 3s
     timeout:
-      passport: 60s
-      pension-plan: 60s
-      product-recommendation: 60s
-      spending-mission: 60s
+      passport: 90s
+      pension-plan: 90s
+      product-recommendation: 90s
+      spending-mission: 90s
 
 ---
 spring:
