@@ -41,6 +41,18 @@ public class AuthController {
                 .body(ApiResTemplate.success(SuccessCode.OK, result.response()));
     }
 
+    @Operation(summary = "심사용 데모 로그인",
+            description = "카카오 없이 새 데모 계정을 만들고 토큰을 발급한다. "
+                    + "누를 때마다 독립된 계정이 생겨 여러 사람이 동시에 체험할 수 있다. "
+                    + "기능이 꺼져 있으면 404 를 반환한다.")
+    @PostMapping("/demo-login")
+    public ResponseEntity<ApiResTemplate<LoginResponse>> demoLogin() {
+        LoginResult result = authService.demoLogin();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, refreshCookie(result.tokens()))
+                .body(ApiResTemplate.success(SuccessCode.OK, result.response()));
+    }
+
     @Operation(summary = "Access Token 재발급", description = "쿠키의 Refresh Token 을 검증하고 새 Access Token 을 발급한다.")
     @PostMapping("/reissue")
     public ResponseEntity<ApiResTemplate<ReissueResponse>> reissue(HttpServletRequest request) {

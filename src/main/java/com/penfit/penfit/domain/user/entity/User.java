@@ -47,6 +47,12 @@ public class User extends BaseTimeEntity {
         this.demo = false;
     }
 
+    public static User demo(String kakaoId, String nickname) {
+        User user = new User(kakaoId, nickname);
+        user.demo = true;
+        return user;
+    }
+
     public void changeNickname(String nickname) {
         this.nickname = nickname;
     }
