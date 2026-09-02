@@ -98,15 +98,15 @@ class PensionPlanApiTest {
 
         mockMvc.perform(post(PLAN_URL).header(HttpHeaders.AUTHORIZATION, bearer(accessToken)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.data.planName").value("균형 있게 시작"))
+                .andExpect(jsonPath("$.data.planName").value("균형성장형"))
                 .andExpect(jsonPath("$.data.accountType.code").value("PENSION_SAVINGS_FUND"))
                 .andExpect(jsonPath("$.data.accountType.displayName").value("연금저축펀드"))
                 .andExpect(jsonPath("$.data.monthlyContribution").value(120000))
-                .andExpect(jsonPath("$.data.assetAllocation.stockRatio").value(50.0))
-                .andExpect(jsonPath("$.data.assetAllocation.bondRatio").value(40.0))
-                .andExpect(jsonPath("$.data.assetAllocation.depositRatio").value(10.0))
+                .andExpect(jsonPath("$.data.assetAllocation.stockRatio").value(40.0))
+                .andExpect(jsonPath("$.data.assetAllocation.bondRatio").value(30.0))
+                .andExpect(jsonPath("$.data.assetAllocation.depositRatio").value(30.0))
                 .andExpect(jsonPath("$.data.advantages.length()").value(2))
-                .andExpect(jsonPath("$.data.advantages[0]").value("위험과 수익의 균형이 좋아요"))
+                .andExpect(jsonPath("$.data.advantages[0]").exists())
                 .andExpect(jsonPath("$.data.expectedFutureAsset").value(EXPECTED_FUTURE_ASSET))
                 .andExpect(jsonPath("$.data.contributionYears").value(30));
     }
@@ -122,7 +122,7 @@ class PensionPlanApiTest {
 
         mockMvc.perform(get(PLAN_URL).header(HttpHeaders.AUTHORIZATION, bearer(accessToken)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.planName").value("균형 있게 시작"))
+                .andExpect(jsonPath("$.data.planName").value("균형성장형"))
                 .andExpect(jsonPath("$.data.advantages.length()").value(2))
                 .andExpect(jsonPath("$.data.expectedReturnRate").value(0.0500));
     }
@@ -206,7 +206,7 @@ class PensionPlanApiTest {
     }
 
     @Test
-    @DisplayName("장점이 2개가 아니면 계획을 저장하지 않는다")
+    @DisplayName("장점이 2개보다 적으면 계획을 저장하지 않는다")
     void rejectsWrongAdvantageCount() throws Exception {
         preparePassport(120_000L);
         PensionPlanGenerateResponse source = successResponse();
@@ -267,17 +267,17 @@ class PensionPlanApiTest {
 
     private PensionPlanGenerateResponse withAllocation(PensionPlanGenerateResponse source,
                                                        int stock, int bond, int deposit) {
-        return new PensionPlanGenerateResponse(source.planName(), source.accountType(),
-                source.monthlyContribution(),
-                new PensionPlanGenerateResponse.AssetAllocation(
+        return new PensionPlanGenerateResponse(source.title(), source.monthlyContribution(),
+                new PensionPlanGenerateResponse.Allocation(
                         BigDecimal.valueOf(stock), BigDecimal.valueOf(bond), BigDecimal.valueOf(deposit)),
-                source.advantages(), source.recommendationReason(), source.modelVersion());
+                source.targetAccountType(), source.advantages(),
+                source.recommendationReason(), source.modelVersion());
     }
 
     private PensionPlanGenerateResponse withAdvantages(PensionPlanGenerateResponse source,
                                                        List<String> advantages) {
-        return new PensionPlanGenerateResponse(source.planName(), source.accountType(),
-                source.monthlyContribution(), source.assetAllocation(), advantages,
+        return new PensionPlanGenerateResponse(source.title(), source.monthlyContribution(),
+                source.allocation(), source.targetAccountType(), advantages,
                 source.recommendationReason(), source.modelVersion());
     }
 

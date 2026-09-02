@@ -57,7 +57,8 @@ class BehaviorMissionApiTest {
     private static final String START_URL = "/api/v1/users/me/rehearsals";
 
     private static final long TOTAL_SPENDING = 257_000L;
-    private static final long PENSION_IMPACT = 12_483_880L;
+    private static final long PENSION_IMPACT = 72_129_359L;
+    private static final long MONTHLY_EQUIVALENT = 86_667L;
 
     private static final String PROFILE_BODY = """
             {
@@ -110,8 +111,7 @@ class BehaviorMissionApiTest {
                 .andExpect(jsonPath("$.data.topCategory.code").value("FOOD_DELIVERY"))
                 .andExpect(jsonPath("$.data.topCategory.displayName").value("외식·배달"))
                 .andExpect(jsonPath("$.data.totalAmount").value(TOTAL_SPENDING))
-                .andExpect(jsonPath("$.data.recurringExpense").value(19000))
-                .andExpect(jsonPath("$.data.reducibleAmount").value(60000))
+                .andExpect(jsonPath("$.data.reducibleAmount").value(20000))
                 .andExpect(jsonPath("$.data.categorySpending.length()").value(5))
                 .andExpect(jsonPath("$.data.categorySpending[0].category.code").value("FOOD_DELIVERY"))
                 .andExpect(jsonPath("$.data.categorySpending[0].amount").value(140000))
@@ -140,8 +140,9 @@ class BehaviorMissionApiTest {
 
         mockMvc.perform(get(CURRENT_URL).header(HttpHeaders.AUTHORIZATION, bearer(accessToken)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.title").value("커피값 아껴서 연금 넣어보기"))
-                .andExpect(jsonPath("$.data.targetAmount").value(15000))
+                .andExpect(jsonPath("$.data.title").value("외식·배달 지출 관리"))
+                .andExpect(jsonPath("$.data.targetAmount").value(20000))
+                .andExpect(jsonPath("$.data.monthlyEquivalentAmount").value(MONTHLY_EQUIVALENT))
                 .andExpect(jsonPath("$.data.durationDays").value(7))
                 .andExpect(jsonPath("$.data.daysLeft").value(7))
                 .andExpect(jsonPath("$.data.dueDate").value(LocalDate.now().plusDays(7).toString()))
@@ -188,9 +189,9 @@ class BehaviorMissionApiTest {
                         .header(HttpHeaders.AUTHORIZATION, bearer(accessToken)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.completedCount").value(1))
-                .andExpect(jsonPath("$.data.totalSavedAmount").value(15000))
+                .andExpect(jsonPath("$.data.totalSavedAmount").value(20000))
                 .andExpect(jsonPath("$.data.totalPensionImpactAmount").value(PENSION_IMPACT))
-                .andExpect(jsonPath("$.data.completions[0].title").value("커피값 아껴서 연금 넣어보기"))
+                .andExpect(jsonPath("$.data.completions[0].title").value("외식·배달 지출 관리"))
                 .andExpect(jsonPath("$.data.completions[0].completedDate")
                         .value(LocalDate.now(java.time.ZoneId.of("Asia/Seoul")).toString()));
     }
@@ -260,7 +261,7 @@ class BehaviorMissionApiTest {
     }
 
     @Test
-    @DisplayName("핵심 소비가 3개가 아니면 저장하지 않는다")
+    @DisplayName("핵심 소비가 3개보다 적으면 저장하지 않는다")
     void rejectsWrongInsightCount() throws Exception {
         preparePlan();
         SpendingMissionAnalyzeResponse source = successResponse();
@@ -275,14 +276,14 @@ class BehaviorMissionApiTest {
     }
 
     @Test
-    @DisplayName("목표 금액이 5천원 단위가 아니면 저장하지 않는다")
-    void rejectsInvalidTargetAmount() throws Exception {
+    @DisplayName("절감할 금액이 없으면 미션을 만들지 않는다")
+    void rejectsWhenNothingToSave() throws Exception {
         preparePlan();
-        givenAiReturns(withTargetAmount(successResponse(), 33_000L));
+        givenAiReturns(withTargetAmount(successResponse(), 200_000L));
 
         mockMvc.perform(post(ANALYSIS_URL).header(HttpHeaders.AUTHORIZATION, bearer(accessToken)))
-                .andExpect(status().isBadGateway())
-                .andExpect(jsonPath("$.code").value("AI5021"));
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.code").value("BM4221"));
     }
 
     @Test
@@ -299,17 +300,17 @@ class BehaviorMissionApiTest {
     }
 
     @Test
-    @DisplayName("목표 금액이 최소값이어도 저장한다")
-    void acceptsMinimumTargetAmount() throws Exception {
+    @DisplayName("상한이 낮을수록 절약 목표가 커진다")
+    void computesSavingFromCap() throws Exception {
         preparePlan();
-        givenAiReturns(withTargetAmount(successResponse(), 5_000L));
+        givenAiReturns(withTargetAmount(successResponse(), 100_000L));
 
         mockMvc.perform(post(ANALYSIS_URL).header(HttpHeaders.AUTHORIZATION, bearer(accessToken)))
                 .andExpect(status().isCreated());
 
         mockMvc.perform(get(CURRENT_URL).header(HttpHeaders.AUTHORIZATION, bearer(accessToken)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.targetAmount").value(5000));
+                .andExpect(jsonPath("$.data.targetAmount").value(40000));
     }
 
     @Test
@@ -349,21 +350,20 @@ class BehaviorMissionApiTest {
 
     private SpendingMissionAnalyzeResponse withInsights(SpendingMissionAnalyzeResponse source,
                                                         List<String> insights) {
-        SpendingMissionAnalyzeResponse.SpendingAnalysisPayload analysis = source.spendingAnalysis();
+        SpendingMissionAnalyzeResponse.WeeklySpendingAnalysis a = source.weeklySpendingAnalysis();
         return new SpendingMissionAnalyzeResponse(
-                new SpendingMissionAnalyzeResponse.SpendingAnalysisPayload(
-                        analysis.topCategoryCode(), analysis.recurringExpense(), analysis.reducibleAmount(),
-                        analysis.categorySpending(), insights, analysis.summary()),
-                source.mission(), source.modelVersion());
+                new SpendingMissionAnalyzeResponse.WeeklySpendingAnalysis(
+                        a.totalSpending(), a.transactionCount(), a.topCategory(),
+                        a.categorySpending(), insights, a.summary()),
+                source.weeklyMission(), source.modelVersion());
     }
 
     private SpendingMissionAnalyzeResponse withTargetAmount(SpendingMissionAnalyzeResponse source,
                                                             long targetAmount) {
-        SpendingMissionAnalyzeResponse.MissionPayload mission = source.mission();
-        return new SpendingMissionAnalyzeResponse(source.spendingAnalysis(),
-                new SpendingMissionAnalyzeResponse.MissionPayload(
-                        mission.title(), mission.description(), targetAmount,
-                        mission.durationDays(), mission.reason()),
+        SpendingMissionAnalyzeResponse.WeeklyMission m = source.weeklyMission();
+        return new SpendingMissionAnalyzeResponse(source.weeklySpendingAnalysis(),
+                new SpendingMissionAnalyzeResponse.WeeklyMission(m.missionCode(), m.title(),
+                        m.description(), m.targetCategory(), targetAmount, m.period(), m.reason()),
                 source.modelVersion());
     }
 
