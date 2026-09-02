@@ -19,6 +19,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -34,8 +35,9 @@ public class AuthController {
     @Operation(summary = "카카오 로그인", description = "프론트엔드가 전달한 인가 코드로 로그인하고 토큰을 발급한다.")
     @PostMapping("/kakao/login")
     public ResponseEntity<ApiResTemplate<LoginResponse>> kakaoLogin(
-            @Valid @RequestBody KakaoLoginRequest request) {
-        LoginResult result = authService.login(request.code());
+            @Valid @RequestBody KakaoLoginRequest request,
+            @RequestHeader(value = HttpHeaders.ORIGIN, required = false) String origin) {
+        LoginResult result = authService.login(request.code(), origin);
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, refreshCookie(result.tokens()))
                 .body(ApiResTemplate.success(SuccessCode.OK, result.response()));

@@ -35,8 +35,8 @@ public class AuthService {
     private final DemoProperties demoProperties;
 
     @Transactional
-    public LoginResult login(String authorizationCode) {
-        KakaoUserInfo kakaoUser = kakaoOAuthClient.fetchUserInfo(authorizationCode);
+    public LoginResult login(String authorizationCode, String origin) {
+        KakaoUserInfo kakaoUser = kakaoOAuthClient.fetchUserInfo(authorizationCode, origin);
 
         Optional<User> existing = userRepository.findByKakaoId(kakaoUser.kakaoId());
         boolean newUser = existing.isEmpty();

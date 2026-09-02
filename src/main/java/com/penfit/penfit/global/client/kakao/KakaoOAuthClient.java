@@ -23,9 +23,11 @@ public class KakaoOAuthClient {
 
     private final RestClient restClient;
     private final KakaoProperties properties;
+    private final KakaoRedirectUriResolver redirectUriResolver;
 
-    public KakaoOAuthClient(KakaoProperties properties) {
+    public KakaoOAuthClient(KakaoProperties properties, KakaoRedirectUriResolver redirectUriResolver) {
         this.properties = properties;
+        this.redirectUriResolver = redirectUriResolver;
 
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
         factory.setConnectTimeout((int) properties.connectTimeout().toMillis());
@@ -36,8 +38,8 @@ public class KakaoOAuthClient {
                 .build();
     }
 
-    public KakaoUserInfo fetchUserInfo(String authorizationCode) {
-        String kakaoAccessToken = requestAccessToken(authorizationCode);
+    public KakaoUserInfo fetchUserInfo(String authorizationCode, String origin) {
+        String kakaoAccessToken = requestAccessToken(authorizationCode, redirectUriResolver.resolve(origin));
         KakaoUserResponse user = requestUserInfo(kakaoAccessToken);
 
         if (user == null || user.id() == null) {
@@ -50,12 +52,12 @@ public class KakaoOAuthClient {
                 (nickname == null || nickname.isBlank()) ? DEFAULT_NICKNAME : nickname);
     }
 
-    private String requestAccessToken(String authorizationCode) {
+    private String requestAccessToken(String authorizationCode, String redirectUri) {
         MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
         form.add("grant_type", "authorization_code");
         form.add("client_id", properties.clientId());
         form.add("client_secret", properties.clientSecret());
-        form.add("redirect_uri", properties.redirectUri());
+        form.add("redirect_uri", redirectUri);
         form.add("code", authorizationCode);
 
         KakaoTokenResponse response = execute(() -> restClient.post()
@@ -64,7 +66,8 @@ public class KakaoOAuthClient {
                 .body(form)
                 .retrieve()
                 .onStatus(status -> status.is4xxClientError(), (request, clientResponse) -> {
-                    log.warn("카카오 토큰 발급 실패 status={}", clientResponse.getStatusCode());
+                    log.warn("카카오 토큰 발급 실패 status={} redirectUri={} body={}",
+                            clientResponse.getStatusCode(), redirectUri, readBody(clientResponse));
                     throw new BusinessException(ErrorCode.KAKAO_AUTH_FAILED);
                 })
                 .onStatus(status -> status.is5xxServerError(), (request, clientResponse) -> {
@@ -85,7 +88,8 @@ public class KakaoOAuthClient {
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + kakaoAccessToken)
                 .retrieve()
                 .onStatus(status -> status.is4xxClientError(), (request, clientResponse) -> {
-                    log.warn("카카오 사용자 조회 실패 status={}", clientResponse.getStatusCode());
+                    log.warn("카카오 사용자 조회 실패 status={} body={}",
+                            clientResponse.getStatusCode(), readBody(clientResponse));
                     throw new BusinessException(ErrorCode.KAKAO_AUTH_FAILED);
                 })
                 .onStatus(status -> status.is5xxServerError(), (request, clientResponse) -> {
@@ -93,6 +97,14 @@ public class KakaoOAuthClient {
                     throw new BusinessException(ErrorCode.KAKAO_SERVER_ERROR);
                 })
                 .body(KakaoUserResponse.class));
+    }
+
+    private String readBody(org.springframework.http.client.ClientHttpResponse response) {
+        try (java.io.InputStream body = response.getBody()) {
+            return new String(body.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+        } catch (java.io.IOException e) {
+            return "";
+        }
     }
 
     private <T> T execute(java.util.function.Supplier<T> call) {

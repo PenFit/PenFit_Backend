@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -20,8 +21,10 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.willThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -49,8 +52,21 @@ class AuthApiTest {
 
     @BeforeEach
     void setUp() {
-        given(kakaoOAuthClient.fetchUserInfo(anyString()))
+        given(kakaoOAuthClient.fetchUserInfo(anyString(), any()))
                 .willReturn(new KakaoUserInfo("kakao-1", "이재원"));
+    }
+
+    @Test
+    @DisplayName("요청 Origin 을 카카오 클라이언트에 그대로 넘긴다")
+    void passesOriginToKakaoClient() throws Exception {
+        mockMvc.perform(post(LOGIN_URL)
+                        .header(HttpHeaders.ORIGIN, "http://localhost:5173")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(LOGIN_BODY))
+                .andExpect(status().isOk());
+
+        then(kakaoOAuthClient).should()
+                .fetchUserInfo("authorization-code", "http://localhost:5173");
     }
 
     @Test
@@ -98,7 +114,7 @@ class AuthApiTest {
     @DisplayName("카카오 인증에 실패하면 401 AU4015 를 반환한다")
     void returnsUnauthorizedWhenKakaoRejects() throws Exception {
         willThrow(new BusinessException(ErrorCode.KAKAO_AUTH_FAILED))
-                .given(kakaoOAuthClient).fetchUserInfo(anyString());
+                .given(kakaoOAuthClient).fetchUserInfo(anyString(), any());
 
         mockMvc.perform(post(LOGIN_URL)
                         .contentType(MediaType.APPLICATION_JSON)
