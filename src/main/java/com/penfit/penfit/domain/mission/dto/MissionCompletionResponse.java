@@ -19,6 +19,7 @@ public record MissionCompletionResponse(
             Long missionId,
             String title,
             Long targetAmount,
+            Long monthlyEquivalentAmount,
             Long pensionImpactAmount,
             LocalDate completedDate,
             OffsetDateTime completedAt
@@ -39,6 +40,7 @@ public record MissionCompletionResponse(
                                 mission.getId(),
                                 mission.getTitle(),
                                 mission.getTargetAmount(),
+                                mission.monthlyEquivalentAmount(),
                                 mission.getPensionImpactAmount(),
                                 ServiceTime.toLocalDate(mission.getCompletedAt()),
                                 mission.getCompletedAt()))

@@ -15,6 +15,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 
@@ -23,6 +25,9 @@ import java.time.OffsetDateTime;
 @Table(name = "behavior_missions")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class BehaviorMission extends BaseTimeEntity {
+
+    private static final BigDecimal WEEKS_PER_YEAR = BigDecimal.valueOf(52);
+    private static final BigDecimal MONTHS_PER_YEAR = BigDecimal.valueOf(12);
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -82,6 +87,13 @@ public class BehaviorMission extends BaseTimeEntity {
         this.dueDate = dueDate;
         this.modelVersion = modelVersion;
         this.status = MissionStatus.PENDING;
+    }
+
+    public long monthlyEquivalentAmount() {
+        return BigDecimal.valueOf(targetAmount)
+                .multiply(WEEKS_PER_YEAR)
+                .divide(MONTHS_PER_YEAR, 0, RoundingMode.HALF_UP)
+                .longValue();
     }
 
     public boolean isOwnedBy(Long userId) {
