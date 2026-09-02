@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -45,6 +46,8 @@ import java.util.stream.IntStream;
 public class SpendingMissionStore {
 
     private static final int ANALYSIS_DAYS = 7;
+    private static final int DISPLAYED_INSIGHT_COUNT = 3;
+    private static final BigDecimal PERCENT = BigDecimal.valueOf(100);
 
     private final VirtualTransactionRepository virtualTransactionRepository;
     private final SpendingAnalysisRepository spendingAnalysisRepository;
@@ -87,15 +90,18 @@ public class SpendingMissionStore {
     @Transactional
     public SpendingAnalysisResponse save(AnalysisContext context, SpendingMissionAnalyzeResponse response,
                                          String rawResponse) {
-        SpendingMissionAnalyzeResponse.SpendingAnalysisPayload payload = response.spendingAnalysis();
+        SpendingMissionAnalyzeResponse.WeeklySpendingAnalysis payload = response.weeklySpendingAnalysis();
+        SpendingMissionAnalyzeResponse.WeeklyMission mission = response.weeklyMission();
+
+        CategoryCode topCategory = CategoryCode.valueOf(payload.topCategory());
+        long savingAmount = savingAmountOf(payload, mission);
 
         SpendingAnalysis analysis = spendingAnalysisRepository.save(SpendingAnalysis.builder()
                 .userId(context.userId())
                 .analysisStartDate(context.request().weekStartDate())
                 .analysisEndDate(context.request().weekEndDate())
-                .topCategoryCode(CategoryCode.valueOf(payload.topCategoryCode()))
-                .recurringExpense(payload.recurringExpense())
-                .reducibleAmount(payload.reducibleAmount())
+                .topCategoryCode(topCategory)
+                .reducibleAmount(savingAmount)
                 .summary(payload.summary())
                 .aiRawResponse(rawResponse)
                 .modelVersion(response.modelVersion())
@@ -110,33 +116,53 @@ public class SpendingMissionStore {
                         .analysisId(analysis.getId())
                         .categoryCode(CategoryCode.valueOf(sorted.get(index).categoryCode()))
                         .amount(sorted.get(index).amount())
-                        .ratio(sorted.get(index).ratio())
+                        .ratio(toPercent(sorted.get(index).ratio()))
                         .displayOrder(index + 1)
                         .build())
                 .toList());
 
-        spendingKeyInsightRepository.saveAll(IntStream.range(0, payload.keyInsights().size())
+        List<String> insights = payload.insights()
+                .subList(0, Math.min(payload.insights().size(), DISPLAYED_INSIGHT_COUNT));
+        spendingKeyInsightRepository.saveAll(IntStream.range(0, insights.size())
                 .mapToObj(index -> SpendingKeyInsight.builder()
                         .analysisId(analysis.getId())
                         .displayOrder(index + 1)
-                        .content(payload.keyInsights().get(index))
+                        .content(insights.get(index))
                         .build())
                 .toList());
 
-        SpendingMissionAnalyzeResponse.MissionPayload mission = response.mission();
         behaviorMissionRepository.save(BehaviorMission.builder()
                 .userId(context.userId())
                 .spendingAnalysisId(analysis.getId())
                 .title(mission.title())
                 .description(mission.description())
                 .reason(mission.reason())
-                .targetAmount(mission.targetAmount())
-                .durationDays(mission.durationDays())
-                .dueDate(ServiceTime.today().plusDays(mission.durationDays()))
+                .targetAmount(savingAmount)
+                .durationDays(ANALYSIS_DAYS)
+                .dueDate(ServiceTime.today().plusDays(ANALYSIS_DAYS))
                 .modelVersion(response.modelVersion())
                 .build());
 
         return analysisResponse(analysis);
+    }
+
+    private long savingAmountOf(SpendingMissionAnalyzeResponse.WeeklySpendingAnalysis payload,
+                                SpendingMissionAnalyzeResponse.WeeklyMission mission) {
+        long spent = payload.categorySpending().stream()
+                .filter(item -> item.categoryCode().equals(mission.targetCategory()))
+                .mapToLong(SpendingMissionAnalyzeResponse.CategorySpending::amount)
+                .findFirst()
+                .orElse(0L);
+
+        long saving = spent - mission.targetAmount();
+        if (saving <= 0) {
+            throw new BusinessException(ErrorCode.NO_ACTIONABLE_SPENDING);
+        }
+        return saving;
+    }
+
+    private BigDecimal toPercent(BigDecimal ratio) {
+        return ratio.multiply(PERCENT).setScale(2, RoundingMode.HALF_UP);
     }
 
     @Transactional(readOnly = true)
@@ -172,7 +198,7 @@ public class SpendingMissionStore {
         }
 
         mission.complete(pensionAssetCalculator.futureValue(
-                mission.getTargetAmount(),
+                mission.monthlyEquivalentAmount(),
                 pensionProperties.expectedReturnRate(),
                 pensionProperties.contributionYears()));
 

@@ -121,10 +121,10 @@ penfit:
     api-key: ${AI_INTERNAL_API_KEY}
     connect-timeout: 3s
     timeout:
-      passport: 18s
-      pension-plan: 18s
-      product-recommendation: 13s
-      spending-mission: 18s
+      passport: 60s
+      pension-plan: 60s
+      product-recommendation: 60s
+      spending-mission: 60s
 
 ---
 spring:

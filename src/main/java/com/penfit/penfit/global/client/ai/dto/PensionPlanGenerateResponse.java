@@ -4,15 +4,15 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public record PensionPlanGenerateResponse(
-        String planName,
-        String accountType,
+        String title,
         Long monthlyContribution,
-        AssetAllocation assetAllocation,
+        Allocation allocation,
+        String targetAccountType,
         List<String> advantages,
         String recommendationReason,
         String modelVersion
 ) {
 
-    public record AssetAllocation(BigDecimal stockRatio, BigDecimal bondRatio, BigDecimal depositRatio) {
+    public record Allocation(BigDecimal stockRatio, BigDecimal bondRatio, BigDecimal depositRatio) {
     }
 }

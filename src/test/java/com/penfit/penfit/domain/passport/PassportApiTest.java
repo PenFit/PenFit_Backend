@@ -281,14 +281,14 @@ class PassportApiTest {
     }
 
     private PassportAnalyzeResponse withReport(PassportAnalyzeResponse source, String report) {
-        return new PassportAnalyzeResponse(source.typeCode(), source.typeName(),
+        return new PassportAnalyzeResponse(source.typeCode(), source.typeName(), source.typeSummary(),
                 source.sustainableMonthlyContribution(), source.biggestInterruptionRisk(),
                 source.marketRiskLevel(), source.analysisSummary(), report,
                 source.judgmentReason(), source.modelVersion());
     }
 
     private PassportAnalyzeResponse withSustainable(PassportAnalyzeResponse source, Long sustainable) {
-        return new PassportAnalyzeResponse(source.typeCode(), source.typeName(),
+        return new PassportAnalyzeResponse(source.typeCode(), source.typeName(), source.typeSummary(),
                 sustainable, source.biggestInterruptionRisk(), source.marketRiskLevel(),
                 source.analysisSummary(), source.detailedAnalysisReport(),
                 source.judgmentReason(), source.modelVersion());

@@ -46,11 +46,10 @@ class AiClientTest {
     @Test
     @DisplayName("API 마다 정해진 경로를 사용한다")
     void usesFixedPaths() {
-        assertThat(AiApi.PASSPORT.getPath()).isEqualTo("/internal/v1/pension-passport/analyze");
-        assertThat(AiApi.PENSION_PLAN.getPath()).isEqualTo("/internal/v1/pension-plan/generate");
-        assertThat(AiApi.PRODUCT_RECOMMENDATION.getPath())
-                .isEqualTo("/internal/v1/product-recommendations/generate");
-        assertThat(AiApi.SPENDING_MISSION.getPath()).isEqualTo("/internal/v1/spending-mission/analyze");
+        assertThat(AiApi.PASSPORT.getPath()).isEqualTo("/passport");
+        assertThat(AiApi.PENSION_PLAN.getPath()).isEqualTo("/plan");
+        assertThat(AiApi.PRODUCT_RECOMMENDATION.getPath()).isEqualTo("/product");
+        assertThat(AiApi.SPENDING_MISSION.getPath()).isEqualTo("/transaction");
     }
 
     private AiClient clientOf(String baseUrl) {

@@ -165,11 +165,11 @@ class ProductRecommendationApiTest {
 
         ProductRecommendationGenerateRequest request =
                 (ProductRecommendationGenerateRequest) captor.getValue();
-        assertThat(request.recommendationCount()).isEqualTo(3);
-        assertThat(request.productCandidates()).hasSize(5);
-        assertThat(request.productCandidates().get(0).feeMinRate())
+        assertThat(request.products()).hasSize(5);
+        assertThat(request.plan().targetAccountType()).isEqualTo("PENSION_SAVINGS_FUND");
+        assertThat(request.products().get(0).feeMinRate())
                 .isEqualByComparingTo(BigDecimal.valueOf(0.15));
-        assertThat(request.productCandidates().get(0).feeMaxRate())
+        assertThat(request.products().get(0).feeMaxRate())
                 .isEqualByComparingTo(BigDecimal.valueOf(0.45));
     }
 
@@ -215,10 +215,10 @@ class ProductRecommendationApiTest {
     void rejectsUnknownProduct() throws Exception {
         List<PensionProduct> candidates = preparePlan(AccountType.PENSION_SAVINGS_FUND);
         ProductRecommendationGenerateResponse response = responseFor(candidates);
-        List<ProductRecommendationGenerateResponse.Recommendation> tampered = List.of(
-                withProductId(response.recommendations().get(0), 999_999L),
-                response.recommendations().get(1),
-                response.recommendations().get(2));
+        List<ProductRecommendationGenerateResponse.RecommendedProduct> tampered = List.of(
+                withProductId(response.recommendedProducts().get(0), 999_999L),
+                response.recommendedProducts().get(1),
+                response.recommendedProducts().get(2));
         given(aiClient.call(eq(AiApi.PRODUCT_RECOMMENDATION), any(),
                 eq(ProductRecommendationGenerateResponse.class), anyLong()))
                 .willReturn(new ProductRecommendationGenerateResponse(tampered, response.modelVersion()));
@@ -297,18 +297,18 @@ class ProductRecommendationApiTest {
                         .getInputStream()).path("productRecommendationsGenerate").traverse(),
                 ProductRecommendationGenerateResponse.class);
 
-        List<ProductRecommendationGenerateResponse.Recommendation> reflected =
-                java.util.stream.IntStream.range(0, fixture.recommendations().size())
-                        .mapToObj(index -> withProductId(fixture.recommendations().get(index),
+        List<ProductRecommendationGenerateResponse.RecommendedProduct> reflected =
+                java.util.stream.IntStream.range(0, fixture.recommendedProducts().size())
+                        .mapToObj(index -> withProductId(fixture.recommendedProducts().get(index),
                                 candidates.get(index).getId()))
                         .toList();
         return new ProductRecommendationGenerateResponse(reflected, fixture.modelVersion());
     }
 
-    private ProductRecommendationGenerateResponse.Recommendation withProductId(
-            ProductRecommendationGenerateResponse.Recommendation source, Long productId) {
-        return new ProductRecommendationGenerateResponse.Recommendation(
-                productId, source.rank(), source.fitScore(), source.fitLevel(),
+    private ProductRecommendationGenerateResponse.RecommendedProduct withProductId(
+            ProductRecommendationGenerateResponse.RecommendedProduct source, Long productId) {
+        return new ProductRecommendationGenerateResponse.RecommendedProduct(
+                source.rank(), productId, source.fitScore(), source.fitLevel(),
                 source.recommendationReason());
     }
 

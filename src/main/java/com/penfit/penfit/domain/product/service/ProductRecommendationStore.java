@@ -31,7 +31,6 @@ public class ProductRecommendationStore {
 
     private static final int MINIMUM_CANDIDATES = 3;
     private static final int MAXIMUM_CANDIDATES = 20;
-    private static final int RECOMMENDATION_COUNT = 3;
 
     private final PensionPlanRepository pensionPlanRepository;
     private final PensionPassportRepository pensionPassportRepository;
@@ -65,7 +64,7 @@ public class ProductRecommendationStore {
         return new RecommendationContext(
                 userId,
                 plan.getId(),
-                ProductRecommendationGenerateRequest.of(plan, passport, candidates, RECOMMENDATION_COUNT),
+                ProductRecommendationGenerateRequest.of(plan, passport, candidates),
                 candidates.stream().map(PensionProduct::getId).collect(Collectors.toSet()));
     }
 
@@ -76,7 +75,7 @@ public class ProductRecommendationStore {
         productRecommendationRepository.flush();
 
         List<ProductRecommendation> saved = productRecommendationRepository.saveAll(
-                response.recommendations().stream()
+                response.recommendedProducts().stream()
                         .sorted((left, right) -> Integer.compare(left.rank(), right.rank()))
                         .map(item -> ProductRecommendation.builder()
                                 .userId(context.userId())

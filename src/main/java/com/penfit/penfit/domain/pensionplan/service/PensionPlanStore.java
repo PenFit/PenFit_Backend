@@ -30,6 +30,8 @@ import java.util.stream.IntStream;
 @RequiredArgsConstructor
 public class PensionPlanStore {
 
+    private static final int DISPLAYED_ADVANTAGE_COUNT = 2;
+
     private final PensionPlanRepository pensionPlanRepository;
     private final PensionPlanAdvantageRepository pensionPlanAdvantageRepository;
     private final FinancialProfileRepository financialProfileRepository;
@@ -75,12 +77,12 @@ public class PensionPlanStore {
             plan = pensionPlanRepository.saveAndFlush(PensionPlan.builder()
                     .userId(context.userId())
                     .passportId(context.passportId())
-                    .planName(response.planName())
-                    .accountType(AccountType.valueOf(response.accountType()))
+                    .planName(response.title())
+                    .accountType(AccountType.valueOf(response.targetAccountType()))
                     .monthlyContribution(response.monthlyContribution())
-                    .stockRatio(response.assetAllocation().stockRatio())
-                    .bondRatio(response.assetAllocation().bondRatio())
-                    .depositRatio(response.assetAllocation().depositRatio())
+                    .stockRatio(response.allocation().stockRatio())
+                    .bondRatio(response.allocation().bondRatio())
+                    .depositRatio(response.allocation().depositRatio())
                     .recommendationReason(response.recommendationReason())
                     .expectedFutureAsset(expectedFutureAsset)
                     .contributionYears(pensionProperties.contributionYears())
@@ -92,12 +94,14 @@ public class PensionPlanStore {
             throw new BusinessException(ErrorCode.PENSION_PLAN_ALREADY_EXISTS, e);
         }
 
+        List<String> contents = response.advantages()
+                .subList(0, Math.min(response.advantages().size(), DISPLAYED_ADVANTAGE_COUNT));
         List<PensionPlanAdvantage> advantages = pensionPlanAdvantageRepository.saveAll(
-                IntStream.range(0, response.advantages().size())
+                IntStream.range(0, contents.size())
                         .mapToObj(index -> PensionPlanAdvantage.builder()
                                 .planId(plan.getId())
                                 .displayOrder(index + 1)
-                                .content(response.advantages().get(index))
+                                .content(contents.get(index))
                                 .build())
                         .toList());
 

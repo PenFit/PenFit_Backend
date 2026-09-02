@@ -20,7 +20,7 @@ public record SpendingMissionAnalyzeRequest(
             Long transactionId,
             OffsetDateTime transactionDate,
             String type,
-            String category,
+            String categoryCode,
             String merchantName,
             Long amount
     ) {

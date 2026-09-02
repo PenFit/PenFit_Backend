@@ -7,10 +7,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum AiApi {
 
-    PASSPORT("/internal/v1/pension-passport/analyze"),
-    PENSION_PLAN("/internal/v1/pension-plan/generate"),
-    PRODUCT_RECOMMENDATION("/internal/v1/product-recommendations/generate"),
-    SPENDING_MISSION("/internal/v1/spending-mission/analyze");
+    PASSPORT("/passport"),
+    PENSION_PLAN("/plan"),
+    PRODUCT_RECOMMENDATION("/product"),
+    SPENDING_MISSION("/transaction");
 
     private final String path;
 }

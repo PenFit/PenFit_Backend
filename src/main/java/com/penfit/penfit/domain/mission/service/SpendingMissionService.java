@@ -26,11 +26,7 @@ import java.util.Set;
 public class SpendingMissionService {
 
     private static final int REQUIRED_INSIGHT_COUNT = 3;
-    private static final long TARGET_AMOUNT_UNIT = 5_000L;
-    private static final long TARGET_AMOUNT_MIN = 5_000L;
-    private static final long TARGET_AMOUNT_MAX = 50_000L;
-    private static final BigDecimal RATIO_TOTAL = BigDecimal.valueOf(100);
-    private static final BigDecimal RATIO_TOLERANCE = BigDecimal.ONE;
+    private static final BigDecimal RATIO_TOLERANCE = new BigDecimal("0.05");
 
     private final AiClient aiClient;
     private final SpendingMissionStore spendingMissionStore;
@@ -69,14 +65,9 @@ public class SpendingMissionService {
     private void validate(SpendingMissionAnalyzeResponse response) {
         require(hasText(response.modelVersion()), "modelVersion 이 비어 있다");
 
-        SpendingMissionAnalyzeResponse.SpendingAnalysisPayload analysis = response.spendingAnalysis();
-        require(analysis != null, "spendingAnalysis 가 없다");
-        require(isCategory(analysis.topCategoryCode()),
-                "알 수 없는 topCategoryCode: " + analysis.topCategoryCode());
-        require(analysis.recurringExpense() != null && analysis.recurringExpense() >= 0,
-                "recurringExpense 는 0 이상이어야 한다");
-        require(analysis.reducibleAmount() != null && analysis.reducibleAmount() >= 0,
-                "reducibleAmount 는 0 이상이어야 한다");
+        SpendingMissionAnalyzeResponse.WeeklySpendingAnalysis analysis = response.weeklySpendingAnalysis();
+        require(analysis != null, "weeklySpendingAnalysis 가 없다");
+        require(isCategory(analysis.topCategory()), "알 수 없는 topCategory: " + analysis.topCategory());
         require(hasText(analysis.summary()), "summary 가 비어 있다");
 
         List<SpendingMissionAnalyzeResponse.CategorySpending> spending = analysis.categorySpending();
@@ -91,32 +82,27 @@ public class SpendingMissionService {
             require(item.amount() != null && item.amount() >= 0, "지출 금액은 0 이상이어야 한다");
             require(item.ratio() != null
                             && item.ratio().compareTo(BigDecimal.ZERO) >= 0
-                            && item.ratio().compareTo(RATIO_TOTAL) <= 0,
-                    "ratio 가 0~100 범위를 벗어났다: " + item.ratio());
+                            && item.ratio().compareTo(BigDecimal.ONE) <= 0,
+                    "ratio 가 0~1 범위를 벗어났다: " + item.ratio());
             ratioSum = ratioSum.add(item.ratio());
         }
-        require(ratioSum.subtract(RATIO_TOTAL).abs().compareTo(RATIO_TOLERANCE) <= 0,
-                "ratio 의 합이 100 에서 벗어났다: " + ratioSum);
+        require(ratioSum.subtract(BigDecimal.ONE).abs().compareTo(RATIO_TOLERANCE) <= 0,
+                "ratio 의 합이 1 에서 벗어났다: " + ratioSum);
 
-        List<String> insights = analysis.keyInsights();
-        require(insights != null && insights.size() == REQUIRED_INSIGHT_COUNT,
-                "keyInsights 는 %d개여야 한다".formatted(REQUIRED_INSIGHT_COUNT));
-        require(insights.stream().allMatch(this::hasText), "keyInsights 에 빈 문장이 있다");
-        require(new HashSet<>(insights).size() == REQUIRED_INSIGHT_COUNT, "keyInsights 가 중복됐다");
+        List<String> insights = analysis.insights();
+        require(insights != null && insights.size() >= REQUIRED_INSIGHT_COUNT,
+                "insights 는 %d개 이상이어야 한다".formatted(REQUIRED_INSIGHT_COUNT));
+        require(insights.stream().allMatch(this::hasText), "insights 에 빈 문장이 있다");
 
-        SpendingMissionAnalyzeResponse.MissionPayload mission = response.mission();
-        require(mission != null, "mission 이 없다");
+        SpendingMissionAnalyzeResponse.WeeklyMission mission = response.weeklyMission();
+        require(mission != null, "weeklyMission 이 없다");
         require(hasText(mission.title()), "미션 title 이 비어 있다");
         require(hasText(mission.description()), "미션 description 이 비어 있다");
         require(hasText(mission.reason()), "미션 reason 이 비어 있다");
-        require(mission.durationDays() != null && mission.durationDays() > 0,
-                "durationDays 는 0보다 커야 한다");
-        require(mission.targetAmount() != null
-                        && mission.targetAmount() >= TARGET_AMOUNT_MIN
-                        && mission.targetAmount() <= TARGET_AMOUNT_MAX,
-                "targetAmount 는 5,000~50,000원이어야 한다: " + mission.targetAmount());
-        require(mission.targetAmount() % TARGET_AMOUNT_UNIT == 0,
-                "targetAmount 는 5,000원 단위여야 한다: " + mission.targetAmount());
+        require(isCategory(mission.targetCategory()),
+                "알 수 없는 targetCategory: " + mission.targetCategory());
+        require(mission.targetAmount() != null && mission.targetAmount() >= 0,
+                "targetAmount 는 0 이상이어야 한다");
     }
 
     private boolean isCategory(String value) {
