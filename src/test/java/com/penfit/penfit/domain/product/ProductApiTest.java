@@ -17,6 +17,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -218,7 +219,7 @@ class ProductApiTest {
     }
 
     private String loginAs(String kakaoId, String nickname) throws Exception {
-        given(kakaoOAuthClient.fetchUserInfo(anyString()))
+        given(kakaoOAuthClient.fetchUserInfo(anyString(), any()))
                 .willReturn(new KakaoUserInfo(kakaoId, nickname));
 
         String body = mockMvc.perform(post("/api/v1/auth/kakao/login")

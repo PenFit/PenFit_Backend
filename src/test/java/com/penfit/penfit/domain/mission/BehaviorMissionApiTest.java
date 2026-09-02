@@ -427,7 +427,7 @@ class BehaviorMissionApiTest {
     }
 
     private String loginAs(String kakaoId, String nickname) throws Exception {
-        given(kakaoOAuthClient.fetchUserInfo(anyString()))
+        given(kakaoOAuthClient.fetchUserInfo(anyString(), any()))
                 .willReturn(new KakaoUserInfo(kakaoId, nickname));
 
         String body = mockMvc.perform(post("/api/v1/auth/kakao/login")

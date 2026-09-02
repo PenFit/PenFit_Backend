@@ -105,6 +105,7 @@ FastAPI가 150~250MB를 쓰면 안전 마진이 사라진다. 별도 호스팅 �
 | `DEPLOY_ENABLED` | `true` | 배포 잡 활성화. 없으면 배포 단계를 건너뛴다 |
 | `PENFIT_DOMAIN` | 예) `penfit.duckdns.org` | Caddy가 인증서를 발급할 도메인 |
 | `AI_BASE_URL` | `http://ai-server:8000` | AI 서버 주소 |
+| `KAKAO_REDIRECT_URIS` | 예) `https://www.penfit.store/oauth/kakao/callback,http://localhost:5173/oauth/kakao/callback` | 허용할 카카오 리다이렉트 URI 목록. 요청 `Origin` 과 일치하는 값을 골라 토큰을 교환하고, 없으면 첫 번째 값을 쓴다. 카카오 콘솔에 등록된 값과 같아야 한다 |
 
 ## 수동 배포와 롤백
 
