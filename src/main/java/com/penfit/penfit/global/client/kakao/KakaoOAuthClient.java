@@ -66,7 +66,8 @@ public class KakaoOAuthClient {
                 .body(form)
                 .retrieve()
                 .onStatus(status -> status.is4xxClientError(), (request, clientResponse) -> {
-                    log.warn("카카오 토큰 발급 실패 status={}", clientResponse.getStatusCode());
+                    log.warn("카카오 토큰 발급 실패 status={} redirectUri={} body={}",
+                            clientResponse.getStatusCode(), redirectUri, readBody(clientResponse));
                     throw new BusinessException(ErrorCode.KAKAO_AUTH_FAILED);
                 })
                 .onStatus(status -> status.is5xxServerError(), (request, clientResponse) -> {
@@ -87,7 +88,8 @@ public class KakaoOAuthClient {
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + kakaoAccessToken)
                 .retrieve()
                 .onStatus(status -> status.is4xxClientError(), (request, clientResponse) -> {
-                    log.warn("카카오 사용자 조회 실패 status={}", clientResponse.getStatusCode());
+                    log.warn("카카오 사용자 조회 실패 status={} body={}",
+                            clientResponse.getStatusCode(), readBody(clientResponse));
                     throw new BusinessException(ErrorCode.KAKAO_AUTH_FAILED);
                 })
                 .onStatus(status -> status.is5xxServerError(), (request, clientResponse) -> {
@@ -95,6 +97,14 @@ public class KakaoOAuthClient {
                     throw new BusinessException(ErrorCode.KAKAO_SERVER_ERROR);
                 })
                 .body(KakaoUserResponse.class));
+    }
+
+    private String readBody(org.springframework.http.client.ClientHttpResponse response) {
+        try (java.io.InputStream body = response.getBody()) {
+            return new String(body.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+        } catch (java.io.IOException e) {
+            return "";
+        }
     }
 
     private <T> T execute(java.util.function.Supplier<T> call) {
