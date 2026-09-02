@@ -74,7 +74,7 @@ public class PassportAnalysisStore {
                 .rehearsalId(context.rehearsalId())
                 .typeCode(typeCode)
                 .sustainableMonthlyContribution(response.sustainableMonthlyContribution())
-                .biggestInterruptionRiskCode(ScenarioCode.valueOf(response.biggestInterruptionRisk()))
+                .biggestInterruptionRiskCode(ScenarioCode.valueOf(response.biggestInterruptionRisk().scenarioCode()))
                 .marketRiskLevel(MarketRiskLevel.valueOf(response.marketRiskLevel().code()))
                 .typeSummary(typeCode.getDescription())
                 .summary(response.analysisSummary())

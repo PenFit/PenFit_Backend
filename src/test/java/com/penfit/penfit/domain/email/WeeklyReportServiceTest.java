@@ -35,6 +35,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -49,6 +50,7 @@ class WeeklyReportServiceTest {
 
     private static final String EMAIL_URL = "/api/v1/users/me/email";
     private static final String CONSENT_URL = "/api/v1/users/me/email-consent";
+    private static final String MY_EMAIL = "jaewon@email.com";
 
     @Autowired
     private MockMvc mockMvc;
@@ -92,12 +94,12 @@ class WeeklyReportServiceTest {
         long analysisId = saveAnalysis();
         saveMission(analysisId, "커피값 아껴서 연금 넣어보기", false);
 
-        assertThat(weeklyReportService.sendWeeklyReports()).isEqualTo(1);
+        weeklyReportService.sendWeeklyReports();
 
         List<EmailSendLog> logs = myLogs();
         assertThat(logs).hasSize(1);
         assertThat(logs.get(0).getStatus()).isEqualTo("SUCCESS");
-        assertThat(logs.get(0).getEmail()).isEqualTo("jaewon@email.com");
+        assertThat(logs.get(0).getEmail()).isEqualTo(MY_EMAIL);
     }
 
     @Test
@@ -111,7 +113,7 @@ class WeeklyReportServiceTest {
 
         ArgumentCaptor<String> subject = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> html = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(emailSender).send(anyString(), subject.capture(), html.capture());
+        Mockito.verify(emailSender).send(eq(MY_EMAIL), subject.capture(), html.capture());
 
         LocalDate today = ServiceTime.today();
         assertThat(subject.getValue())
@@ -120,7 +122,7 @@ class WeeklyReportServiceTest {
         assertThat(html.getValue())
                 .contains("이재원님의 연금생활")
                 .contains("커피값 아껴서 연금 넣어보기")
-                .contains("15,000원")
+                .contains("20,000원")
                 .contains("외식·배달")
                 .contains("이메일 수신을 거부");
     }
@@ -136,7 +138,7 @@ class WeeklyReportServiceTest {
         weeklyReportService.sendWeeklyReports();
 
         ArgumentCaptor<String> html = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(emailSender).send(anyString(), anyString(), html.capture());
+        Mockito.verify(emailSender).send(eq(MY_EMAIL), anyString(), html.capture());
         assertThat(html.getValue()).doesNotContain("<b>해커</b>").contains("&lt;b&gt;해커&lt;/b&gt;");
     }
 
@@ -146,13 +148,14 @@ class WeeklyReportServiceTest {
         mockMvc.perform(put(EMAIL_URL)
                         .header(HttpHeaders.AUTHORIZATION, bearer(accessToken))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"email\":\"jaewon@email.com\"}"))
+                        .content("{\"email\":\"" + MY_EMAIL + "\"}"))
                 .andExpect(status().isOk());
         long analysisId = saveAnalysis();
         saveMission(analysisId, "커피값 아껴서 연금 넣어보기", false);
 
-        assertThat(weeklyReportService.sendWeeklyReports()).isZero();
-        Mockito.verifyNoInteractions(emailSender);
+        weeklyReportService.sendWeeklyReports();
+
+        Mockito.verify(emailSender, Mockito.never()).send(eq(MY_EMAIL), anyString(), anyString());
     }
 
     @Test
@@ -160,8 +163,9 @@ class WeeklyReportServiceTest {
     void skipsWithoutMission() throws Exception {
         subscribe();
 
-        assertThat(weeklyReportService.sendWeeklyReports()).isZero();
-        Mockito.verifyNoInteractions(emailSender);
+        weeklyReportService.sendWeeklyReports();
+
+        Mockito.verify(emailSender, Mockito.never()).send(eq(MY_EMAIL), anyString(), anyString());
         assertThat(myLogs()).isEmpty();
     }
 
@@ -172,8 +176,9 @@ class WeeklyReportServiceTest {
         long analysisId = saveAnalysis();
         saveMission(analysisId, "커피값 아껴서 연금 넣어보기", false);
 
-        assertThat(weeklyReportService.sendWeeklyReports()).isEqualTo(1);
-        assertThat(weeklyReportService.sendWeeklyReports()).isZero();
+        weeklyReportService.sendWeeklyReports();
+        weeklyReportService.sendWeeklyReports();
+
         assertThat(myLogs()).hasSize(1);
     }
 
@@ -186,7 +191,7 @@ class WeeklyReportServiceTest {
         willThrow(new IllegalStateException("smtp down"))
                 .given(emailSender).send(anyString(), anyString(), anyString());
 
-        assertThat(weeklyReportService.sendWeeklyReports()).isZero();
+        weeklyReportService.sendWeeklyReports();
 
         List<EmailSendLog> logs = myLogs();
         assertThat(logs).hasSize(1);
@@ -205,11 +210,11 @@ class WeeklyReportServiceTest {
         weeklyReportService.sendWeeklyReports();
 
         ArgumentCaptor<String> html = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(emailSender).send(anyString(), anyString(), html.capture());
+        Mockito.verify(emailSender).send(eq(MY_EMAIL), anyString(), html.capture());
         assertThat(html.getValue())
                 .contains("지난주 미션 결과")
                 .contains(previous.getTitle())
-                .contains("12,483,880원");
+                .contains("72,129,359원");
     }
 
     @Test
@@ -222,7 +227,7 @@ class WeeklyReportServiceTest {
         weeklyReportService.sendWeeklyReports();
 
         ArgumentCaptor<String> html = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(emailSender).send(anyString(), anyString(), html.capture());
+        Mockito.verify(emailSender).send(eq(MY_EMAIL), anyString(), html.capture());
         assertThat(html.getValue()).doesNotContain("지난주 미션 결과");
     }
 
@@ -236,7 +241,7 @@ class WeeklyReportServiceTest {
         mockMvc.perform(put(EMAIL_URL)
                         .header(HttpHeaders.AUTHORIZATION, bearer(accessToken))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"email\":\"jaewon@email.com\"}"))
+                        .content("{\"email\":\"" + MY_EMAIL + "\"}"))
                 .andExpect(status().isOk());
         mockMvc.perform(patch(CONSENT_URL)
                         .header(HttpHeaders.AUTHORIZATION, bearer(accessToken))
@@ -252,7 +257,7 @@ class WeeklyReportServiceTest {
                 .analysisEndDate(LocalDate.of(2026, 8, 30))
                 .topCategoryCode(CategoryCode.FOOD_DELIVERY)
                 .recurringExpense(19_000L)
-                .reducibleAmount(60_000L)
+                .reducibleAmount(20_000L)
                 .summary("외식·배달 지출 비중이 가장 높아요.")
                 .aiRawResponse("{}")
                 .modelVersion("spending-mission-model-1.0")
@@ -276,14 +281,14 @@ class WeeklyReportServiceTest {
                 .title(title)
                 .description("이번 주 3만원 아껴서 연금계좌 추가 납입")
                 .reason("외식·배달 지출이 가장 큰 비중을 차지해요.")
-                .targetAmount(15_000L)
+                .targetAmount(20_000L)
                 .durationDays(7)
                 .dueDate(ServiceTime.today().plusDays(7))
                 .modelVersion("spending-mission-model-1.0")
                 .build());
 
         if (completed) {
-            mission.complete(12_483_880L);
+            mission.complete(72_129_359L);
             behaviorMissionRepository.saveAndFlush(mission);
         }
         return mission;

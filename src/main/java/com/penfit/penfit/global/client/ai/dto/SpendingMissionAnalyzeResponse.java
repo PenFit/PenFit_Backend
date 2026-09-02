@@ -4,17 +4,17 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public record SpendingMissionAnalyzeResponse(
-        SpendingAnalysisPayload spendingAnalysis,
-        MissionPayload mission,
+        WeeklySpendingAnalysis weeklySpendingAnalysis,
+        WeeklyMission weeklyMission,
         String modelVersion
 ) {
 
-    public record SpendingAnalysisPayload(
-            String topCategoryCode,
-            Long recurringExpense,
-            Long reducibleAmount,
+    public record WeeklySpendingAnalysis(
+            Long totalSpending,
+            Integer transactionCount,
+            String topCategory,
             List<CategorySpending> categorySpending,
-            List<String> keyInsights,
+            List<String> insights,
             String summary
     ) {
     }
@@ -22,11 +22,13 @@ public record SpendingMissionAnalyzeResponse(
     public record CategorySpending(String categoryCode, Long amount, BigDecimal ratio) {
     }
 
-    public record MissionPayload(
+    public record WeeklyMission(
+            String missionCode,
             String title,
             String description,
+            String targetCategory,
             Long targetAmount,
-            Integer durationDays,
+            String period,
             String reason
     ) {
     }

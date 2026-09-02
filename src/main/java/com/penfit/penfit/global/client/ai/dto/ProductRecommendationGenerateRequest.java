@@ -3,30 +3,36 @@ package com.penfit.penfit.global.client.ai.dto;
 import com.penfit.penfit.domain.passport.entity.PensionPassport;
 import com.penfit.penfit.domain.pensionplan.entity.PensionPlan;
 import com.penfit.penfit.domain.product.entity.PensionProduct;
+import com.penfit.penfit.global.client.ai.dto.PensionPlanGenerateRequest.MarketRiskPayload;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 
 public record ProductRecommendationGenerateRequest(
-        PensionPlanPayload pensionPlan,
-        PensionPassportPayload pensionPassport,
-        List<ProductCandidatePayload> productCandidates,
-        int recommendationCount
+        PassportPayload passport,
+        PlanPayload plan,
+        List<ProductCandidatePayload> products
 ) {
 
     private static final BigDecimal PERCENT = BigDecimal.valueOf(100);
 
-    public record PensionPlanPayload(
-            String accountType,
-            Long monthlyContribution,
-            BigDecimal stockRatio,
-            BigDecimal bondRatio,
-            BigDecimal depositRatio
+    public record PassportPayload(
+            String typeCode,
+            String typeName,
+            Long sustainableMonthlyContribution,
+            MarketRiskPayload marketRiskLevel
     ) {
     }
 
-    public record PensionPassportPayload(String typeCode, String marketRiskLevelCode) {
+    public record PlanPayload(
+            Long monthlyContribution,
+            AllocationPayload allocation,
+            String targetAccountType
+    ) {
+    }
+
+    public record AllocationPayload(BigDecimal stockRatio, BigDecimal bondRatio, BigDecimal depositRatio) {
     }
 
     public record ProductCandidatePayload(
@@ -60,19 +66,19 @@ public record ProductRecommendationGenerateRequest(
     }
 
     public static ProductRecommendationGenerateRequest of(PensionPlan plan, PensionPassport passport,
-                                                          List<PensionProduct> candidates,
-                                                          int recommendationCount) {
+                                                          List<PensionProduct> candidates) {
         return new ProductRecommendationGenerateRequest(
-                new PensionPlanPayload(
-                        plan.getAccountType().name(),
-                        plan.getMonthlyContribution(),
-                        plan.getStockRatio(),
-                        plan.getBondRatio(),
-                        plan.getDepositRatio()),
-                new PensionPassportPayload(
+                new PassportPayload(
                         passport.getTypeCode().name(),
-                        passport.getMarketRiskLevel().name()),
-                candidates.stream().map(ProductCandidatePayload::from).toList(),
-                recommendationCount);
+                        passport.getTypeCode().getDisplayName(),
+                        passport.getSustainableMonthlyContribution(),
+                        new MarketRiskPayload(
+                                passport.getMarketRiskLevel().name(),
+                                passport.getMarketRiskLevel().getDisplayName())),
+                new PlanPayload(
+                        plan.getMonthlyContribution(),
+                        new AllocationPayload(plan.getStockRatio(), plan.getBondRatio(), plan.getDepositRatio()),
+                        plan.getAccountType().name()),
+                candidates.stream().map(ProductCandidatePayload::from).toList());
     }
 }

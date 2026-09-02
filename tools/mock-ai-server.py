@@ -8,10 +8,10 @@ from pathlib import Path
 FIXTURES = Path(__file__).resolve().parent.parent / "src/test/resources/fixtures/penfit-ai-success-responses.json"
 
 ROUTES = {
-    "/internal/v1/pension-passport/analyze": "pensionPassportAnalyze",
-    "/internal/v1/pension-plan/generate": "pensionPlanGenerate",
-    "/internal/v1/product-recommendations/generate": "productRecommendationsGenerate",
-    "/internal/v1/spending-mission/analyze": "spendingMissionAnalyze",
+    "/passport": "pensionPassportAnalyze",
+    "/plan": "pensionPlanGenerate",
+    "/product": "productRecommendationsGenerate",
+    "/transaction": "spendingMissionAnalyze",
 }
 
 DELAY_SECONDS = float(os.environ.get("MOCK_DELAY_SECONDS", "0"))
@@ -29,7 +29,7 @@ class Handler(BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
 
     def do_GET(self):
-        if self.path == "/internal/health/live":
+        if self.path == "/health":
             self.respond(200, {"status": "UP"})
         else:
             self.respond(404, {"code": "NOT_FOUND", "message": self.path})
@@ -95,16 +95,16 @@ class Handler(BaseHTTPRequestHandler):
 
 def reflect_candidates(response, body):
     try:
-        candidates = json.loads(body).get("productCandidates") or []
+        candidates = json.loads(body).get("products") or []
     except json.JSONDecodeError:
         return response
-    if len(candidates) < len(response["recommendations"]):
+    if len(candidates) < len(response["recommendedProducts"]):
         return response
 
     reflected = dict(response)
-    reflected["recommendations"] = [
+    reflected["recommendedProducts"] = [
         {**item, "productId": candidates[index]["productId"]}
-        for index, item in enumerate(response["recommendations"])
+        for index, item in enumerate(response["recommendedProducts"])
     ]
     return reflected
 

@@ -8,18 +8,23 @@ import com.penfit.penfit.global.client.ai.dto.PassportAnalyzeRequest.PensionSetu
 
 public record PensionPlanGenerateRequest(
         FinancialProfilePayload financialProfile,
-        PensionSetupPayload currentPensionSetup,
-        PensionPassportPayload pensionPassport
+        PensionSetupPayload pensionSetup,
+        PassportPayload passport
 ) {
 
-    public record PensionPassportPayload(
+    public record PassportPayload(
             String typeCode,
-            Long sustainableMonthlyContribution,
-            String biggestInterruptionRiskCode,
-            String marketRiskLevelCode,
+            String typeName,
             String typeSummary,
-            String analysisSummary
+            Long sustainableMonthlyContribution,
+            String biggestInterruptionRisk,
+            MarketRiskPayload marketRiskLevel,
+            String analysisSummary,
+            String judgmentReason
     ) {
+    }
+
+    public record MarketRiskPayload(String code, String displayName) {
     }
 
     public static PensionPlanGenerateRequest of(FinancialProfile profile, PensionSetup setup,
@@ -27,12 +32,16 @@ public record PensionPlanGenerateRequest(
         return new PensionPlanGenerateRequest(
                 FinancialProfilePayload.from(profile),
                 PensionSetupPayload.from(setup),
-                new PensionPassportPayload(
+                new PassportPayload(
                         passport.getTypeCode().name(),
+                        passport.getTypeCode().getDisplayName(),
+                        passport.getTypeSummary(),
                         passport.getSustainableMonthlyContribution(),
                         passport.getBiggestInterruptionRiskCode().name(),
-                        passport.getMarketRiskLevel().name(),
-                        passport.getTypeCode().getDescription(),
-                        passport.getSummary()));
+                        new MarketRiskPayload(
+                                passport.getMarketRiskLevel().name(),
+                                passport.getMarketRiskLevel().getDisplayName()),
+                        passport.getSummary(),
+                        passport.getJudgmentReason()));
     }
 }
