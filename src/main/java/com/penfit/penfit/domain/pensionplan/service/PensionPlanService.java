@@ -21,7 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PensionPlanService {
 
-    private static final int REQUIRED_ADVANTAGE_COUNT = 2;
+    private static final int MINIMUM_ADVANTAGE_COUNT = 2;
     private static final BigDecimal RATIO_TOTAL = BigDecimal.valueOf(100);
 
     private final AiClient aiClient;
@@ -43,20 +43,21 @@ public class PensionPlanService {
     }
 
     private void validate(PensionPlanGenerateResponse response) {
-        require(hasText(response.planName()), "planName 이 비어 있다");
+        require(hasText(response.title()), "title 이 비어 있다");
         require(hasText(response.recommendationReason()), "recommendationReason 이 비어 있다");
         require(hasText(response.modelVersion()), "modelVersion 이 비어 있다");
-        require(isAccountType(response.accountType()), "알 수 없는 accountType: " + response.accountType());
+        require(isAccountType(response.targetAccountType()),
+                "알 수 없는 targetAccountType: " + response.targetAccountType());
         require(response.monthlyContribution() != null && response.monthlyContribution() > 0,
                 "monthlyContribution 은 0보다 커야 한다");
 
         List<String> advantages = response.advantages();
-        require(advantages != null && advantages.size() == REQUIRED_ADVANTAGE_COUNT,
-                "advantages 는 %d개여야 한다".formatted(REQUIRED_ADVANTAGE_COUNT));
+        require(advantages != null && advantages.size() >= MINIMUM_ADVANTAGE_COUNT,
+                "advantages 는 %d개 이상이어야 한다".formatted(MINIMUM_ADVANTAGE_COUNT));
         advantages.forEach(advantage -> require(hasText(advantage), "advantages 에 빈 문장이 있다"));
 
-        PensionPlanGenerateResponse.AssetAllocation allocation = response.assetAllocation();
-        require(allocation != null, "assetAllocation 이 없다");
+        PensionPlanGenerateResponse.Allocation allocation = response.allocation();
+        require(allocation != null, "allocation 이 없다");
         require(inRange(allocation.stockRatio()), "stockRatio 가 0~100 범위를 벗어났다");
         require(inRange(allocation.bondRatio()), "bondRatio 가 0~100 범위를 벗어났다");
         require(inRange(allocation.depositRatio()), "depositRatio 가 0~100 범위를 벗어났다");

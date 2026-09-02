@@ -65,8 +65,9 @@ public class PassportAnalysisService {
         require(response.marketRiskLevel() != null
                         && isEnum(MarketRiskLevel.class, response.marketRiskLevel().code()),
                 "알 수 없는 marketRiskLevel");
-        require(isEnum(ScenarioCode.class, response.biggestInterruptionRisk()),
-                "알 수 없는 biggestInterruptionRisk: " + response.biggestInterruptionRisk());
+        require(response.biggestInterruptionRisk() != null
+                        && isEnum(ScenarioCode.class, response.biggestInterruptionRisk().scenarioCode()),
+                "알 수 없는 biggestInterruptionRisk");
     }
 
     private void require(boolean condition, String reason) {

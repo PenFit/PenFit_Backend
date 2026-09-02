@@ -49,14 +49,14 @@ public class ProductRecommendationService {
     }
 
     private void validate(ProductRecommendationGenerateResponse response, RecommendationContext context) {
-        require(response.recommendations() != null
-                        && response.recommendations().size() == RECOMMENDATION_COUNT,
-                "recommendations 는 %d개여야 한다".formatted(RECOMMENDATION_COUNT));
+        require(response.recommendedProducts() != null
+                        && response.recommendedProducts().size() == RECOMMENDATION_COUNT,
+                "recommendedProducts 는 %d개여야 한다".formatted(RECOMMENDATION_COUNT));
         require(hasText(response.modelVersion()), "modelVersion 이 비어 있다");
 
         Set<Long> productIds = new HashSet<>();
         Set<Integer> ranks = new HashSet<>();
-        for (ProductRecommendationGenerateResponse.Recommendation item : response.recommendations()) {
+        for (ProductRecommendationGenerateResponse.RecommendedProduct item : response.recommendedProducts()) {
             require(item.productId() != null && context.candidateIds().contains(item.productId()),
                     "요청한 후보에 없는 productId 다: " + item.productId());
             require(productIds.add(item.productId()), "같은 상품이 중복됐다: " + item.productId());
