@@ -47,18 +47,20 @@ public class AiClient {
     public <T> T call(AiApi api, Object request, Class<T> responseType, Long userId) {
         long startedAt = System.currentTimeMillis();
         try {
-            T response = clients.get(api).post()
+            String body = clients.get(api).post()
                     .uri(api.getPath())
                     .header(API_KEY_HEADER, properties.apiKey())
+                    .accept(MediaType.APPLICATION_JSON)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(request)
+                    .body(writeBody(request))
                     .retrieve()
                     .onStatus(HttpStatusCode::isError, (req, res) -> {
                         throw toServerException(res);
                     })
-                    .body(responseType);
+                    .body(String.class);
 
             long duration = System.currentTimeMillis() - startedAt;
+            T response = readBody(body, responseType);
             if (response == null) {
                 aiCallLogger.failure(userId, api, request, 200, null, duration);
                 throw new BusinessException(ErrorCode.AI_INVALID_RESPONSE);
@@ -68,9 +70,12 @@ public class AiClient {
 
         } catch (AiServerException e) {
             aiCallLogger.failure(userId, api, request, e.getHttpStatus(),
-                    e.getAiErrorCode(), System.currentTimeMillis() - startedAt);
+                    e.getAiErrorCode(), System.currentTimeMillis() - startedAt, e.getResponseBody());
             log.warn("AI 호출 실패 api={} status={} code={}", api, e.getHttpStatus(), e.getAiErrorCode());
             throw new BusinessException(e.getErrorCode());
+
+        } catch (BusinessException e) {
+            throw e;
 
         } catch (ResourceAccessException e) {
             boolean timedOut = e.getCause() instanceof SocketTimeoutException;
@@ -80,24 +85,69 @@ public class AiClient {
                     System.currentTimeMillis() - startedAt);
             log.error("AI 서버 통신 실패 api={} timedOut={}", api, timedOut, e);
             throw new BusinessException(errorCode, e);
+
+        } catch (RuntimeException e) {
+            boolean timedOut = hasTimeout(e);
+            aiCallLogger.failure(userId, api, request, null, timedOut ? "TIMEOUT" : "RESPONSE_ERROR",
+                    System.currentTimeMillis() - startedAt);
+            log.error("AI 응답을 처리하지 못했습니다 api={} timedOut={}", api, timedOut, e);
+            throw new BusinessException(
+                    timedOut ? ErrorCode.AI_TIMEOUT : ErrorCode.AI_INVALID_RESPONSE, e);
+        }
+    }
+
+    private boolean hasTimeout(Throwable throwable) {
+        for (Throwable cause = throwable; cause != null; cause = cause.getCause()) {
+            if (cause instanceof SocketTimeoutException) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private String writeBody(Object request) {
+        try {
+            return objectMapper.writeValueAsString(request);
+        } catch (IOException e) {
+            throw new IllegalStateException("AI 요청을 변환하지 못했습니다.", e);
+        }
+    }
+
+    private <T> T readBody(String body, Class<T> responseType) {
+        if (body == null || body.isBlank()) {
+            return null;
+        }
+        try {
+            return objectMapper.readValue(body, responseType);
+        } catch (IOException e) {
+            throw new IllegalStateException("AI 응답을 변환하지 못했습니다.", e);
         }
     }
 
     private AiServerException toServerException(ClientHttpResponse response) throws IOException {
         int status = response.getStatusCode().value();
-        AiErrorResponse body = readError(response);
+        String raw = readRawBody(response);
+        AiErrorResponse body = readError(raw);
         String code = body == null ? null : body.code();
         return new AiServerException(status, code, toErrorCode(status, code),
-                body == null ? null : body.message());
+                body == null ? null : body.message(), raw);
     }
 
-    private AiErrorResponse readError(ClientHttpResponse response) {
+    private String readRawBody(ClientHttpResponse response) {
         try {
             byte[] bytes = response.getBody().readAllBytes();
-            if (bytes.length == 0) {
-                return null;
-            }
-            return objectMapper.readValue(bytes, AiErrorResponse.class);
+            return bytes.length == 0 ? null : new String(bytes, java.nio.charset.StandardCharsets.UTF_8);
+        } catch (IOException | RuntimeException e) {
+            return null;
+        }
+    }
+
+    private AiErrorResponse readError(String raw) {
+        if (raw == null) {
+            return null;
+        }
+        try {
+            return objectMapper.readValue(raw, AiErrorResponse.class);
         } catch (IOException | RuntimeException e) {
             return null;
         }

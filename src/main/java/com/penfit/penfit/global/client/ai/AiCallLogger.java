@@ -37,10 +37,17 @@ public class AiCallLogger {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void failure(Long userId, AiApi api, Object request, Integer httpStatus,
                         String aiErrorCode, long durationMs) {
+        failure(userId, api, request, httpStatus, aiErrorCode, durationMs, null);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void failure(Long userId, AiApi api, Object request, Integer httpStatus,
+                        String aiErrorCode, long durationMs, String responseBody) {
         save(AiCallLog.builder()
                 .userId(userId)
                 .apiName(api.name())
                 .requestPayload(toJson(request))
+                .responsePayload(asJson(responseBody))
                 .httpStatus(httpStatus)
                 .aiErrorCode(aiErrorCode)
                 .durationMs((int) durationMs)
@@ -53,6 +60,18 @@ public class AiCallLogger {
             aiCallLogRepository.save(callLog);
         } catch (RuntimeException e) {
             log.error("AI 호출 이력 저장 실패 api={}", callLog.getApiName(), e);
+        }
+    }
+
+    private String asJson(String body) {
+        if (body == null || body.isBlank()) {
+            return null;
+        }
+        try {
+            objectMapper.readTree(body);
+            return body;
+        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+            return toJson(java.util.Map.of("raw", body));
         }
     }
 
