@@ -65,9 +65,13 @@ public enum ErrorCode {
             "미션으로 만들 만한 절감 가능액이 없어요."),
 
     AI_ANALYSIS_FAILED(HttpStatus.UNPROCESSABLE_ENTITY, "AI4221", "AI 분석에 실패했어요. 다시 시도해주세요."),
+    AI_RATE_LIMITED(HttpStatus.TOO_MANY_REQUESTS, "AI4291",
+            "분석 요청이 몰려 잠시 지연되고 있어요. 1분 뒤 다시 시도해주세요."),
+    AI_DAILY_LIMIT_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "AI4292",
+            "오늘 이용할 수 있는 분석 횟수를 모두 사용했어요. 내일 오전 9시 이후에 다시 시도해주세요."),
     AI_INVALID_RESPONSE(HttpStatus.BAD_GATEWAY, "AI5021", "AI 서버 응답이 올바르지 않습니다."),
-    AI_SERVER_ERROR(HttpStatus.BAD_GATEWAY, "AI5022", "AI 서버 오류가 발생했습니다."),
-    AI_TIMEOUT(HttpStatus.GATEWAY_TIMEOUT, "AI5041", "AI 분석 시간이 초과됐어요. 다시 시도해주세요.");
+    AI_SERVER_ERROR(HttpStatus.BAD_GATEWAY, "AI5022", "분석 중 문제가 생겼어요. 다시 시도해주세요."),
+    AI_TIMEOUT(HttpStatus.GATEWAY_TIMEOUT, "AI5041", "분석 시간이 초과됐어요. 다시 시도해주세요.");
 
     private final HttpStatus httpStatus;
     private final String code;
