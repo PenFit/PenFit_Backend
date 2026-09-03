@@ -27,6 +27,8 @@ public class AiClient {
     private static final String API_KEY_HEADER = "X-Internal-Api-Key";
     private static final String INSUFFICIENT_RECOMMENDATIONS = "INSUFFICIENT_RECOMMENDATIONS";
     private static final String NO_ACTIONABLE_SPENDING = "NO_ACTIONABLE_SPENDING";
+    private static final String RATE_LIMIT_MARKER = "tokens per minute";
+    private static final String DAILY_LIMIT_MARKER = "tokens per day";
 
     private final Map<AiApi, RestClient> clients = new EnumMap<>(AiApi.class);
     private final AiProperties properties;
@@ -129,7 +131,7 @@ public class AiClient {
         String raw = readRawBody(response);
         AiErrorResponse body = readError(raw);
         String code = body == null ? null : body.code();
-        return new AiServerException(status, code, toErrorCode(status, code),
+        return new AiServerException(status, code, toErrorCode(status, code, raw),
                 body == null ? null : body.message(), raw);
     }
 
@@ -153,7 +155,15 @@ public class AiClient {
         }
     }
 
-    private ErrorCode toErrorCode(int status, String aiErrorCode) {
+    static ErrorCode toErrorCode(int status, String aiErrorCode, String raw) {
+        if (raw != null) {
+            if (raw.contains(DAILY_LIMIT_MARKER)) {
+                return ErrorCode.AI_DAILY_LIMIT_EXCEEDED;
+            }
+            if (raw.contains(RATE_LIMIT_MARKER)) {
+                return ErrorCode.AI_RATE_LIMITED;
+            }
+        }
         if (status == 504) {
             return ErrorCode.AI_TIMEOUT;
         }
